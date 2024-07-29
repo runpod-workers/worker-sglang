@@ -1,29 +1,50 @@
-# Base image -> https://github.com/runpod/containers/blob/main/official-templates/base/Dockerfile
-# DockerHub -> https://hub.docker.com/r/runpod/base/tags
-FROM runpod/base:0.4.0-cuda11.8.0
+FROM nvidia/cuda:12.1.0-base-ubuntu22.04 
 
-# The base image comes with many system dependencies pre-installed to help you get started quickly.
-# Please refer to the base image's Dockerfile for more information before adding additional dependencies.
-# IMPORTANT: The base image overrides the default huggingface cache location.
+RUN apt-get update -y \
+    && apt-get install -y python3-pip
 
+RUN ldconfig /usr/local/cuda-12.1/compat/
 
-# --- Optional: System dependencies ---
-# COPY builder/setup.sh /setup.sh
-# RUN /bin/bash /setup.sh && \
-#     rm /setup.sh
-
-
-# Python dependencies
+# Install Python dependencies
 COPY builder/requirements.txt /requirements.txt
-RUN python3.11 -m pip install --upgrade pip && \
-    python3.11 -m pip install --upgrade -r /requirements.txt --no-cache-dir && \
-    rm /requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install --upgrade -r /requirements.txt
 
-# NOTE: The base image comes with multiple Python versions pre-installed.
-#       It is reccommended to specify the version of Python when running your code.
+# Install vLLM (switching back to pip installs since issues that required building fork are fixed and space optimization is not as important since caching) and FlashInfer 
+RUN python3 -m pip install "sglang[all]" && \
+    python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3
+
+# Setup for Option 2: Building the Image with the Model included
+ARG MODEL_NAME=""
+ARG TOKENIZER_NAME=""
+ARG BASE_PATH="/runpod-volume"
+ARG QUANTIZATION=""
+ARG MODEL_REVISION=""
+ARG TOKENIZER_REVISION=""
+
+ENV MODEL_NAME=$MODEL_NAME \
+    MODEL_REVISION=$MODEL_REVISION \
+    TOKENIZER_NAME=$TOKENIZER_NAME \
+    TOKENIZER_REVISION=$TOKENIZER_REVISION \
+    BASE_PATH=$BASE_PATH \
+    QUANTIZATION=$QUANTIZATION \
+    HF_DATASETS_CACHE="${BASE_PATH}/huggingface-cache/datasets" \
+    HUGGINGFACE_HUB_CACHE="${BASE_PATH}/huggingface-cache/hub" \
+    HF_HOME="${BASE_PATH}/huggingface-cache/hub" \
+    HF_HUB_ENABLE_HF_TRANSFER=1 
+
+ENV PYTHONPATH="/:/vllm-workspace"
 
 
-# Add src files (Worker Template)
-ADD src .
+COPY src /src
+RUN --mount=type=secret,id=HF_TOKEN,required=false \
+    if [ -f /run/secrets/HF_TOKEN ]; then \
+        export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
+    fi && \
+    if [ -n "$MODEL_NAME" ]; then \
+        python3 /src/download_model.py; \
+    fi
 
-CMD python3.11 -u /handler.py
+# Start the handler
+CMD ["python3", "/src/handler.py"]

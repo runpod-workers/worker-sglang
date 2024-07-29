@@ -1,18 +1,22 @@
-""" Example handler file. """
-
+import os
 import runpod
+from utils import JobInput
+from engine import SGLangEngine, OpenAISGLangEngine
 
-# If your handler runs inference on a model, load the model here.
-# You will want models to be loaded into memory before starting serverless.
+sglang_engine = SGLangEngine()
+openai_sglang_engine = OpenAISGLangEngine(sglang_engine)
 
+async def handler(job):
+    job_input = JobInput(job["input"])
+    engine = openai_sglang_engine if job_input.openai_route else sglang_engine
+    results_generator = engine.generate(job_input)
+    async for batch in results_generator:
+        yield batch
 
-def handler(job):
-    """ Handler function that will be used to process jobs. """
-    job_input = job['input']
-
-    name = job_input.get('name', 'World')
-
-    return f"Hello, {name}!"
-
-
-runpod.serverless.start({"handler": handler})
+runpod.serverless.start(
+    {
+        "handler": handler,
+        "concurrency_modifier": lambda x: sglang_engine.max_concurrency,
+        "return_aggregate_stream": True,
+    }
+)
