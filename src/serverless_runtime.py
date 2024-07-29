@@ -1,26 +1,31 @@
 from sglang.srt.managers.io_struct import GenerateReqInput
 from sglang.srt.managers.tokenizer_manager import TokenizerManager
-from sglang.srt.server_args import ServerArgs
+from sglang.srt.server_args import ServerArgs, PortArgs
 from sglang.srt.utils import allocate_init_ports
 
 class ServerlessRuntime:
-    def __init__(self, model_name):
+    def __init__(self, model_path):
         self.server_args = ServerArgs(
-            model=model_name,
+            model=model_path,
             tp_size=1,
             max_model_len=2048,
             # Add other arguments as needed
         )
-        self.port_args = self._allocate_ports()
+        self._allocate_ports()
         self.tokenizer_manager = TokenizerManager(self.server_args, self.port_args)
 
     def _allocate_ports(self):
-        self.server_args.port, self.server_args.additional_ports = allocate_init_ports(
+        self.server_args.port, additional_ports = allocate_init_ports(
             self.server_args.port,
             self.server_args.additional_ports,
             self.server_args.dp_size,
         )
-        return self.server_args.additional_ports
+        self.port_args = PortArgs(
+            tokenizer_port=additional_ports[0],
+            controller_port=additional_ports[1],
+            detokenizer_port=additional_ports[2],
+            nccl_ports=additional_ports[3:],
+        )
 
     async def process_request(self, job_input):
         generate_req = GenerateReqInput(
