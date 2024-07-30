@@ -2,7 +2,7 @@
 
 <h1>Preview | SgLang Worker</h1>
 
-🚀 | SgLang runtime inference worker.
+🚀 | SGLang is yet another fast serving framework for large language models and vision language models.
 </div>
 
 ## 📖 | Getting Started
