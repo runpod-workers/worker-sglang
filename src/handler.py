@@ -16,11 +16,12 @@ client = openai.Client(base_url=f"{engine.base_url}/v1", api_key="EMPTY")
 def handler(job):
     try:
         job_input = job["input"]
+        print(f"JOB_INPUT: {job_input}")
         openai_route = job_input.get("openai_route")
         
         if openai_route:
             # Handle OpenAI-compatible routes
-            openai_input = job_input("openai_input", {})
+            openai_input = job_input.get("openai_input", {})
             if openai_route == "/v1/chat/completions":
                 response = client.chat.completions.create(
                     model="default",
