@@ -4,9 +4,9 @@ import requests
 import openai
 import runpod
 import json
-from engine import OpenAICompatibleEngine
+from engine import SGlangEngine
 # Initialize the engine
-engine = OpenAICompatibleEngine()
+engine = SGlangEngine()
 engine.start_server()
 engine.wait_for_server()
 
@@ -51,7 +51,6 @@ def handler(job):
                 "sampling_params": job_input.get("sampling_params", {})
             }
             response = requests.post(generate_url, json=generate_data, headers=headers)
-            
             if response.status_code == 200:
                 return response.json()
             else:

@@ -2,7 +2,7 @@ import subprocess
 import time
 import requests
 
-class OpenAICompatibleEngine:
+class SGlangEngine:
     def __init__(self, model="meta-llama/Meta-Llama-3-8B-Instruct", host="0.0.0.0", port=30000):
         self.model = model
         self.host = host
