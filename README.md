@@ -100,3 +100,6 @@ The following table lists all available environment variables for configuring th
 | `ENABLE_MLA` | Enable Multi-head Latent Attention |
 | `ATTENTION_REDUCE_IN_FP32` | Cast attention results to fp32 |
 | `EFFICIENT_WEIGHT_LOAD` | Enable memory efficient weight loading |
+
+## 💡 | Note: 
+This is an initial and preview phase of the worker's development. It Now supports Non streaming OpenAI compatibility. 
