@@ -16,25 +16,22 @@ async def async_handler(job):
     
     if job_input.get("openai_route"):
         openai_route, openai_input = job_input.get("openai_route"), job_input.get("openai_input")
-        openai_request = OpenAIRequest()
+
+        openai_url = f"{engine.base_url}" + openai_route
+        headers = {"Content-Type": "application/json"}
+
+        response = requests.post(openai_url, headers=headers, json=openai_input, stream=True)
         
-        if openai_route == "/v1/chat/completions":
-            async for chunk in openai_request.request_chat_completions(**openai_input):
+        # Process the streamed response
+        for chunk in response.iter_lines():
+            if chunk:
+                decoded_chunk = chunk.decode('utf-8')
                 yield chunk
-        elif openai_route == "/v1/completions":
-            async for chunk in openai_request.request_completions(**openai_input):
-                yield chunk
-        elif openai_route == "/v1/models":
-            models = await openai_request.get_models()
-            yield models
     else:
         generate_url = f"{engine.base_url}/generate"
         headers = {"Content-Type": "application/json"}
-        generate_data = {
-            "text": job_input.get("prompt", ""),
-            "sampling_params": job_input.get("sampling_params", {})
-        }
-        response = requests.post(generate_url, json=generate_data, headers=headers)
+        # Directly pass `job_input` to `json`. Can we tell users the possible fields of `job_input`?
+        response = requests.post(generate_url, json=job_input, headers=headers)
         if response.status_code == 200:
             yield response.json()
         else:
