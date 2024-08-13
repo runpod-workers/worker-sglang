@@ -13,16 +13,7 @@ class SGlangEngine:
         self.port = port
         self.base_url = f"http://{host}:{port}"
         self.process = None
-
-    # def start_server(self):
-    #     command = [
-    #         "python3", "-m", "sglang.launch_server",
-    #         "--model", self.model,
-    #         "--host", self.host,
-    #         "--port", str(self.port)
-    #     ]
-    #     self.process = subprocess.Popen(command, stdout=None, stderr=None)
-    #     print(f"Server started with PID: {self.process.pid}")
+        
     def start_server(self):
         command = [
             "python3", "-m", "sglang.launch_server",
@@ -83,7 +74,7 @@ class SGlangEngine:
             if os.getenv(flag, '').lower() in ('true', '1', 'yes'):
                 command.append(f"--{flag.lower().replace('_', '-')}")
 
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.process = subprocess.Popen(command, stdout=None, stderr=None)
         print(f"Server started with PID: {self.process.pid}")
     
     def wait_for_server(self, timeout=300, interval=5):
