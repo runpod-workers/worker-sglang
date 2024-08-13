@@ -26,6 +26,8 @@ class SGlangEngine:
     def start_server(self):
         command = [
             "python3", "-m", "sglang.launch_server",
+            "--host", self.host,
+            "--port", str(self.port)
         ]
 
         # Dictionary of all possible options and their corresponding env var names
