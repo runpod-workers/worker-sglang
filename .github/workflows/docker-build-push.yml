@@ -25,4 +25,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/your-repo-name:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/worker-sglang:latest
