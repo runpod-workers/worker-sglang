@@ -1,4 +1,4 @@
-ARG CUDA_VERSION=12.1.1
+ARG CUDA_VERSION=12.4.1
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -15,8 +15,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --upgrade -r /requirements.txt
 
 # Install vLLM (switching back to pip installs since issues that required building fork are fixed and space optimization is not as important since caching) and FlashInfer 
-RUN python3 -m pip install "sglang[all]" && \
-    python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4
+ 
+RUN export CUDA_IDENTIFIER=cu124 && \
+    python3 -m pip install "sglang[all]" && \
+    python3 -m pip --no-cache-dir install flashinfer -i https://flashinfer.ai/whl/cu124/torch2.4/;
 
 RUN python3 -m pip cache purge
 
