@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-xl
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -26,3 +26,11 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/worker-sglang:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker system prune -af
+        df -h
