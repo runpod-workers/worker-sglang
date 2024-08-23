@@ -74,6 +74,8 @@ class SGlangEngine:
             if os.getenv(flag, '').lower() in ('true', '1', 'yes'):
                 command.append(f"--{flag.lower().replace('_', '-')}")
 
+        print("LAUNCH SERVER COMMAND:")
+        print(command)
         self.process = subprocess.Popen(command, stdout=None, stderr=None)
         print(f"Server started with PID: {self.process.pid}")
     

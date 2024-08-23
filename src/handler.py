@@ -8,6 +8,7 @@ engine = SGlangEngine()
 engine.start_server()
 engine.wait_for_server()
 
+print(f" ==== start_server")
 
 async def async_handler(job):
     """Handle the requests asynchronously."""
