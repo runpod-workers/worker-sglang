@@ -2,8 +2,19 @@ ARG CUDA_VERSION=12.4.1
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -y \
-    && apt-get install -y python3-pip \
+RUN echo 'tzdata tzdata/Areas select America' | debconf-set-selections \
+    && echo 'tzdata tzdata/Zones/America select Los_Angeles' | debconf-set-selections \
+    && apt update -y \
+    && apt install software-properties-common -y \
+    && add-apt-repository ppa:deadsnakes/ppa -y && apt update \
+    && apt install python3.10 python3.10-dev -y \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1 && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 2 \
+    && update-alternatives --set python3 /usr/bin/python3.10 && apt install python3.10-distutils -y \
+    && apt install curl git sudo -y \
+    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py \
+    && python3 --version \
+    && python3 -m pip --version \
+    && rm -rf /var/lib/apt/lists/* \
     && apt clean
 
 RUN ldconfig /usr/local/cuda-12.1/compat/
@@ -17,7 +28,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Install vLLM (switching back to pip installs since issues that required building fork are fixed and space optimization is not as important since caching) and FlashInfer 
  
 RUN export CUDA_IDENTIFIER=cu124 && \
-    python3 -m pip install "sglang[all]" && \
+    python3 -m pip install --upgrade pip setuptools wheel html5lib six \
+    python3 -m pip install --upgrade "sglang[all]" && \
     python3 -m pip --no-cache-dir install flashinfer -i https://flashinfer.ai/whl/cu124/torch2.4/;
 
 RUN python3 -m pip cache purge
