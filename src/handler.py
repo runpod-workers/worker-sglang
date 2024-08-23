@@ -45,7 +45,9 @@ async def async_handler(job):
 max_concurrency = int(os.getenv("MAX_CONCURRENCY", 100))
 print(f"MAX_CONCURRENCY {max_concurrency}")
 
-runpod.serverless.start({"handler": async_handler, "concurrency_modifier": max_concurrency, "return_aggregate_stream": True})
+runpod.serverless.start({"handler": async_handler, 
+                         "concurrency_modifier": lambda x: max_concurrency, 
+                         "return_aggregate_stream": True})
 
 # # Ensure the server is shut down when the serverless function is terminated
 # import atexit
