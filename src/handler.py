@@ -2,6 +2,7 @@ import asyncio
 import requests
 from engine import SGlangEngine, OpenAIRequest
 import runpod
+import os
 
 # Initialize the engine
 engine = SGlangEngine()
@@ -41,7 +42,10 @@ async def async_handler(job):
         else:
             yield {"error": f"Generate request failed with status code {response.status_code}", "details": response.text}
 
-runpod.serverless.start({"handler": async_handler, "return_aggregate_stream": True})
+max_concurrency = int(os.getenv("MAX_CONCURRENCY", 100))
+print(f"MAX_CONCURRENCY {max_concurrency}")
+
+runpod.serverless.start({"handler": async_handler, "concurrency_modifier": max_concurrency, "return_aggregate_stream": True})
 
 # # Ensure the server is shut down when the serverless function is terminated
 # import atexit
