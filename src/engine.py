@@ -95,7 +95,7 @@ class SGlangEngine:
     def shutdown(self):
         if self.process:
             self.process.terminate()
-            self.process.wait()
+            self.process.wait() 
             print("Server shut down.")
 
 class OpenAIRequest:
