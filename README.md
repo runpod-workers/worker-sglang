@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1> SgLang Worker</h1>
+<h1> SgLang Worker</h1> 
 
 🚀 | SGLang is yet another fast serving framework for large language models and vision language models.
 </div>
@@ -8,8 +8,8 @@
 ## 📖 | Getting Started
 
 1. Clone this repository.
-2. Build a docker image - ```docker build -t <your_username>:worker-sglang:v1 .```
-3. ```docker push <your_username>:worker-sglang:v1```
+2. Build a docker image - ```docker build -t <your_username>/worker-sglang:v1 .```
+3. ```docker push <your_username>/worker-sglang:v1```
 
 
 ***Once you have built the Docker image and deployed the endpoint, you can use the code below to interact with the endpoint***: 
