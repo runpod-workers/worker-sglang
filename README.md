@@ -33,7 +33,7 @@ print(run_request.output())
 ```
 
 ### OpenAI compatible API
-```
+```python
 from openai import OpenAI
 import os
 
@@ -45,7 +45,7 @@ client = OpenAI(
 ```
 
 `Chat Completions (Non-Streaming)`
-```
+```python
 response = client.chat.completions.create(
     model="meta-llama/Meta-Llama-3-8B-Instruct",
     messages=[{"role": "user", "content": "Give a two lines on Planet Earth ?"}],
@@ -57,7 +57,7 @@ print(f"Response: {response}")
 ```
 
 `Chat Completions (Streaming)`
-```
+```python
 response_stream = client.chat.completions.create(
     model="meta-llama/Meta-Llama-3-8B-Instruct",
     messages=[{"role": "user", "content": "Give a two lines on Planet Earth ?"}],
