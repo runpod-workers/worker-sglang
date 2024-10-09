@@ -2,7 +2,7 @@
 
 <h1> SgLang Worker</h1>
 
-🚀 | SGLang is yet another fast serving framework for large language models and vision language models.
+🚀 | SGLang is fast serving framework for large language models and vision language models.
 </div>
 
 ## 📖 | Getting Started
@@ -31,6 +31,45 @@ print(run_request.status())
 # Get the output of the endpoint run request, blocking until the run is complete
 print(run_request.output()) 
 ```
+
+### OpenAI compatible API
+```
+from openai import OpenAI
+import os
+
+# Initialize the OpenAI Client with your RunPod API Key and Endpoint URL
+client = OpenAI(
+    api_key=os.getenv("RUNPOD_API_KEY"),
+    base_url=f"https://api.runpod.ai/v2/<endpoint_id>/openai/v1",
+)
+```
+
+`Chat Completions (Non-Streaming)`
+```
+response = client.chat.completions.create(
+    model="meta-llama/Meta-Llama-3-8B-Instruct",
+    messages=[{"role": "user", "content": "Give a two lines on Planet Earth ?"}],
+    temperature=0,
+    max_tokens=100,
+    
+)
+print(f"Response: {response}")
+```
+
+`Chat Completions (Streaming)`
+```
+response_stream = client.chat.completions.create(
+    model="meta-llama/Meta-Llama-3-8B-Instruct",
+    messages=[{"role": "user", "content": "Give a two lines on Planet Earth ?"}],
+    temperature=0,
+    max_tokens=100,
+    stream=True
+    
+)
+for response in response_stream:
+    print(response.choices[0].delta.content or "", end="", flush=True)
+```
+
 
 
 ## SGLang Server Configuration
