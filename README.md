@@ -141,4 +141,4 @@ The following table lists all available environment variables for configuring th
 | `EFFICIENT_WEIGHT_LOAD` | Enable memory efficient weight loading |
 
 ## 💡 | Note: 
-This is an initial and preview phase of the worker's development. It Now supports Non streaming OpenAI compatibility. 
+This is an initial and preview phase of the worker's development. 
