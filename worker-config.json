@@ -72,7 +72,7 @@
   "schema": {
     "MODEL_PATH": {
       "env_var_name": "MODEL_PATH",
-      "value": "meta-llama/Meta-Llama-3-8B-Instruct",
+      "value": "",
       "title": "Model Path",
       "description": "Path of the model weights",
       "required": true,
