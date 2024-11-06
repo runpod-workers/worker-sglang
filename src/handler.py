@@ -21,10 +21,16 @@ async def async_handler(job):
         openai_url = f"{engine.base_url}" + openai_route
         headers = {"Content-Type": "application/json"}
 
-        response = requests.post(openai_url, headers=headers, json=openai_input, stream=True)
+        response = requests.post(openai_url, headers=headers, json=openai_input)
         # Process the streamed response
-        for formated_chunk in process_response(response):
-            yield formated_chunk
+        if openai_input.get("stream", False):
+            for formated_chunk in process_response(response):
+                yield formated_chunk
+        else:
+            for chunk in response.iter_lines():
+                if chunk:
+                    decoded_chunk = chunk.decode('utf-8')
+                    yield decoded_chunk        
     else:
         generate_url = f"{engine.base_url}/generate"
         headers = {"Content-Type": "application/json"}
