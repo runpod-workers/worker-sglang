@@ -7,7 +7,6 @@
         {
           "title": "Model Settings",
           "settings": [
-            "MODEL_PATH",
             "TOKENIZER_PATH",
             "CONTEXT_LENGTH",
             "QUANTIZATION",
@@ -70,14 +69,6 @@
     }
   },
   "schema": {
-    "MODEL_PATH": {
-      "env_var_name": "MODEL_PATH",
-      "value": "",
-      "title": "Model Path",
-      "description": "Path of the model weights",
-      "required": true,
-      "type": "text"
-    },
     "HOST": {
       "env_var_name": "HOST",
       "value": "0.0.0.0",
