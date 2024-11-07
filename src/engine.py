@@ -7,7 +7,7 @@ import aiohttp
 import os
 
 class SGlangEngine:
-    def __init__(self, model="meta-llama/Meta-Llama-3-8B-Instruct", host="0.0.0.0", port=30000):
+    def __init__(self, model=os.getenv('MODEL_NAME'), host="0.0.0.0", port=30000):
         self.model = model
         self.host = host
         self.port = port
@@ -23,7 +23,7 @@ class SGlangEngine:
 
         # Dictionary of all possible options and their corresponding env var names
         options = {
-            'MODEL_PATH': '--model-path',
+            'MODEL_NAME': '--model-path',
             'TOKENIZER_PATH': '--tokenizer-path',
             'HOST': '--host',
             'PORT': '--port',
