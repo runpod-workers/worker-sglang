@@ -77,7 +77,7 @@ class SGlangEngine:
         self.process = subprocess.Popen(command, stdout=None, stderr=None)
         print(f"Server started with PID: {self.process.pid}")
     
-    def wait_for_server(self, timeout=300, interval=5):
+    def wait_for_server(self, timeout=900, interval=5):
         start_time = time.time()
         while time.time() - start_time < timeout:
             try:
