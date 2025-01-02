@@ -1,5 +1,72 @@
 {
   "versions": {
+    "0.4.1": {
+      "imageName": "runpod/worker-sglang:v0.4.1stable",
+      "minimumCudaVersion": "12.1",
+      "categories": [
+        {
+          "title": "Model Settings",
+          "settings": [
+            "TOKENIZER_PATH",
+            "CONTEXT_LENGTH",
+            "QUANTIZATION",
+            "LOAD_FORMAT",
+            "DTYPE",
+            "CHAT_TEMPLATE",
+            "SERVED_MODEL_NAME"
+          ]
+        },
+        {
+          "title": "Server Configuration",
+          "settings": [
+            "HOST",
+            "PORT",
+            "ADDITIONAL_PORTS",
+            "API_KEY",
+            "LOG_LEVEL",
+            "LOG_LEVEL_HTTP",
+            "FILE_STORAGE_PTH"
+          ]
+        },
+        {
+          "title": "Performance Settings",
+          "settings": [
+            "MEM_FRACTION_STATIC",
+            "MAX_RUNNING_REQUESTS",
+            "MAX_NUM_REQS",
+            "MAX_TOTAL_TOKENS",
+            "MAX_PREFILL_TOKENS",
+            "CHUNKED_PREFILL_SIZE",
+            "STREAM_INTERVAL"
+          ]
+        },
+        {
+          "title": "Parallelization Settings",
+          "settings": [
+            "TENSOR_PARALLEL_SIZE",
+            "DATA_PARALLEL_SIZE",
+            "NNODES",
+            "NODE_RANK",
+            "NCCL_INIT_ADDR"
+          ]
+        },
+        {
+          "title": "Scheduling Settings",
+          "settings": [
+            "SCHEDULE_POLICY",
+            "SCHEDULE_CONSERVATIVENESS",
+            "LOAD_BALANCE_METHOD"
+          ]
+        },
+        {
+          "title": "Tokenizer Settings",
+          "settings": [
+            "TOKENIZER_MODE",
+            "RANDOM_SEED"
+          ]
+        }
+      ]
+    },
     "0.3.3": {
       "imageName": "runpod/worker-sglang:v0.3.3stable",
       "minimumCudaVersion": "12.1",
