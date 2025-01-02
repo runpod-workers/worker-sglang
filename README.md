@@ -11,7 +11,7 @@ Below is a summary of the available RunPod Worker images, categorized by image s
 
 | Stable Image Tag                  | Development Image Tag             | 
 -----------------------------------|-----------------------------------|
- `runpod/worker-sglang:v0.3.3stable` | `runpod/worker-sglang:v0.3.3dev` | 
+ `runpod/worker-sglang:v0.4.1stable` | `runpod/worker-sglang:v0.4.1dev` | 
 
 
 ## 📖 | Getting Started
