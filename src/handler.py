@@ -3,11 +3,27 @@ import requests
 from engine import SGlangEngine
 from utils import process_response
 import runpod
+import os
 
 # Initialize the engine
 engine = SGlangEngine()
 engine.start_server()
 engine.wait_for_server()
+
+
+def get_max_concurrency(default=300):
+    """
+    Returns the maximum concurrency value.
+    By default, it uses 50 unless the 'MAX_CONCURRENCY' environment variable is set.
+
+    Args:
+        default (int): The default concurrency value if the environment variable is not set.
+
+    Returns:
+        int: The maximum concurrency value.
+    """
+    return int(os.getenv('MAX_CONCURRENCY', default))
+
 
 
 async def async_handler(job):
@@ -41,4 +57,4 @@ async def async_handler(job):
         else:
             yield {"error": f"Generate request failed with status code {response.status_code}", "details": response.text}
 
-runpod.serverless.start({"handler": async_handler, "return_aggregate_stream": True})
+runpod.serverless.start({"handler": async_handler, "concurrency_modifier": get_max_concurrency, "return_aggregate_stream": True})
