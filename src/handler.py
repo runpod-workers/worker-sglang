@@ -11,7 +11,7 @@ engine.start_server()
 engine.wait_for_server()
 
 
-def get_max_concurrency(default=50):
+def get_max_concurrency(default=300):
     """
     Returns the maximum concurrency value.
     By default, it uses 50 unless the 'MAX_CONCURRENCY' environment variable is set.

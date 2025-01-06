@@ -23,6 +23,7 @@
             "PORT",
             "ADDITIONAL_PORTS",
             "API_KEY",
+            "MAX_CONCURRENCY",
             "LOG_LEVEL",
             "LOG_LEVEL_HTTP",
             "FILE_STORAGE_PTH"
@@ -90,6 +91,7 @@
             "PORT",
             "ADDITIONAL_PORTS",
             "API_KEY",
+            "MAX_CONCURRENCY",
             "LOG_LEVEL",
             "LOG_LEVEL_HTTP",
             "FILE_STORAGE_PTH"
@@ -370,6 +372,14 @@
       "description": "API key for the server",
       "required": false,
       "type": "text"
+    },
+    "MAX_CONCURRENCY": {
+    "env_var_name": "MAX_CONCURRENCY",
+    "value": "300",
+    "title": "Max Concurrency",
+    "description": "Max concurrent requests per worker. SGLang has an internal queue, so you don't have to worry about limiting by VRAM, this is for improving scaling/load balancing efficiency",
+    "required": false,
+    "type": "number"
     },
     "FILE_STORAGE_PTH": {
       "env_var_name": "FILE_STORAGE_PTH",
