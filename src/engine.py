@@ -5,10 +5,14 @@ import openai
 import asyncio
 import aiohttp
 import os
+from utils import modelpaths
 
 class SGlangEngine:
-    def __init__(self, model=os.getenv('MODEL_NAME'), host="0.0.0.0", port=30000):
-        self.model = model
+    def __init__(self, model=None, host="0.0.0.0", port=30000):
+        if os.getenv("RUNPOD_HUGGINGFACE_MODEL"):
+            self.model = modelpaths()[0]
+        else:
+            self.model = model or os.getenv("MODEL_NAME")    
         self.host = host
         self.port = port
         self.base_url = f"http://{host}:{port}"
