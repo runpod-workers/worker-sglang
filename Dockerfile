@@ -1,49 +1,42 @@
 FROM nvidia/cuda:12.1.0-base-ubuntu22.04 
 
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
+    && apt-get dist-upgrade -y \
     && apt-get install -y python3-pip
 
 RUN ldconfig /usr/local/cuda-12.1/compat/
 
-# Install Python dependencies
-COPY builder/requirements.txt /requirements.txt
+# install sglang's dependencies
+
+# EFRON:
+# these guys are unbelivably huge - >80GiB. Took well over ten minutes to install on my machine and used 28GiB(!) of RAM.
+# we should consider having a base image with them pre-installed or seeing if we can knock it down a little bit.
+RUN python3 -m pip install "sglang[all]" 
+RUN python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3
+
+
+# install _our_ dependencies
 RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --upgrade -r /requirements.txt
 
-RUN python3 -m pip install "sglang[all]" && \
-    python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3
+RUN mkdir app
+COPY requirements.txt ./app/requirements.txt
 
-# Setup for Option 2: Building the Image with the Model included
-ARG MODEL_NAME=""
-ARG TOKENIZER_NAME=""
-ARG BASE_PATH="/runpod-volume"
-ARG QUANTIZATION=""
-ARG MODEL_REVISION=""
-ARG TOKENIZER_REVISION=""
+# EFRON: no idea what this is doing: leaving it in in case it's important
+ENV BASE_PATH=$BASE_PATH 
+ENV HF_DATASETS_CACHE="${BASE_PATH}/huggingface-cache/datasets" 
+ENV HF_HOME="${BASE_PATH}/huggingface-cache/hub"
+ENV HF_HUB_ENABLE_HF_TRANSFER=1
+ENV HUGGINGFACE_HUB_CACHE="${BASE_PATH}/huggingface-cache/hub"
+ENV MODEL_NAME=$MODEL_NAME
+ENV MODEL_REVISION=$MODEL_REVISION
+ENV QUANTIZATION=$QUANTIZATION
+ENV TOKENIZER_NAME=$TOKENIZER_NAME
+ENV TOKENIZER_REVISION=$TOKENIZER_REVISION
 
-ENV MODEL_NAME=$MODEL_NAME \
-    MODEL_REVISION=$MODEL_REVISION \
-    TOKENIZER_NAME=$TOKENIZER_NAME \
-    TOKENIZER_REVISION=$TOKENIZER_REVISION \
-    BASE_PATH=$BASE_PATH \
-    QUANTIZATION=$QUANTIZATION \
-    HF_DATASETS_CACHE="${BASE_PATH}/huggingface-cache/datasets" \
-    HUGGINGFACE_HUB_CACHE="${BASE_PATH}/huggingface-cache/hub" \
-    HF_HOME="${BASE_PATH}/huggingface-cache/hub" \
-    HF_HUB_ENABLE_HF_TRANSFER=1 
-
-ENV PYTHONPATH="/:/vllm-workspace"
-
-
-COPY src /src
-RUN --mount=type=secret,id=HF_TOKEN,required=false \
-    if [ -f /run/secrets/HF_TOKEN ]; then \
-        export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
-    fi && \
-    if [ -n "$MODEL_NAME" ]; then \
-        python3 /src/download_model.py; \
-    fi
-
-# Start the handler
-CMD ["python3", "/src/handler.py"]
+# not sure why this is here: is a vllm-workspace even in our image?
+ENV PYTHONPATH="/:/vllm-workspace" 
+COPY ./src/handler.py ./app/handler.py
+CMD ["python3", "./app/handler.py"] # actually run the handler
