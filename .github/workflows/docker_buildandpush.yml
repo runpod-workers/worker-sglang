@@ -1,4 +1,4 @@
-name: CD | Test End-to-End
+name: docker-build-and-push
 
 on:
   push:
@@ -9,13 +9,6 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Clear Space
-        run: |
-          rm -rf /usr/share/dotnet
-          rm -rf /opt/ghc
-          rm -rf "/usr/local/share/boost"
-          rm -rf "$AGENT_TOOLSDIRECTORY"
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
