@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.0-base-ubuntu22.04 
+FROM nvidia/cuda:12.1.0-base-ubuntu22.04  as deps
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y \
@@ -12,31 +12,16 @@ RUN ldconfig /usr/local/cuda-12.1/compat/
 # EFRON:
 # these guys are unbelivably huge - >80GiB. Took well over ten minutes to install on my machine and used 28GiB(!) of RAM.
 # we should consider having a base image with them pre-installed or seeing if we can knock it down a little bit.
-RUN python3 -m pip install "sglang[all]" 
-RUN python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3
-
-
-# install _our_ dependencies
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install "sglang[all]" 
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3
+COPY requirements.txt ./requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python3 -m pip install --upgrade pip && \
-    python3 -m pip install --upgrade -r /requirements.txt
-
-RUN mkdir app
-COPY requirements.txt ./app/requirements.txt
-
-# EFRON: no idea what this is doing: leaving it in in case it's important
-ENV BASE_PATH=$BASE_PATH 
-ENV HF_DATASETS_CACHE="${BASE_PATH}/huggingface-cache/datasets" 
-ENV HF_HOME="${BASE_PATH}/huggingface-cache/hub"
-ENV HF_HUB_ENABLE_HF_TRANSFER=1
-ENV HUGGINGFACE_HUB_CACHE="${BASE_PATH}/huggingface-cache/hub"
-ENV MODEL_NAME=$MODEL_NAME
-ENV MODEL_REVISION=$MODEL_REVISION
-ENV QUANTIZATION=$QUANTIZATION
-ENV TOKENIZER_NAME=$TOKENIZER_NAME
-ENV TOKENIZER_REVISION=$TOKENIZER_REVISION
+     python3 -m pip install --upgrade pip && \
+     python3 -m pip install --upgrade -r app/requirements.txt
 
 # not sure why this is here: is a vllm-workspace even in our image?
-ENV PYTHONPATH="/:/vllm-workspace" 
-COPY ./src/handler.py ./app/handler.py
-CMD ["python3", "./app/handler.py"] # actually run the handler
+ ENV PYTHONPATH="/:/vllm-workspace" 
+COPY ./src/handler.py ./handler.py
+
+# run the serverless worker
+CMD ["python3", "./handler.py"]
