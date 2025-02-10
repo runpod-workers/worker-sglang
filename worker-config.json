@@ -61,10 +61,7 @@
         },
         {
           "title": "Tokenizer Settings",
-          "settings": [
-            "TOKENIZER_MODE",
-            "RANDOM_SEED"
-          ]
+          "settings": ["TOKENIZER_MODE", "RANDOM_SEED"]
         }
       ]
     },
@@ -129,10 +126,7 @@
         },
         {
           "title": "Tokenizer Settings",
-          "settings": [
-            "TOKENIZER_MODE",
-            "RANDOM_SEED"
-          ]
+          "settings": ["TOKENIZER_MODE", "RANDOM_SEED"]
         }
       ]
     }
@@ -178,8 +172,8 @@
       "required": false,
       "type": "select",
       "options": [
-        {"value": "auto", "label": "auto"},
-        {"value": "slow", "label": "slow"}
+        { "value": "auto", "label": "auto" },
+        { "value": "slow", "label": "slow" }
       ]
     },
     "LOAD_FORMAT": {
@@ -190,11 +184,11 @@
       "required": false,
       "type": "select",
       "options": [
-        {"value": "auto", "label": "auto"},
-        {"value": "pt", "label": "pt"},
-        {"value": "safetensors", "label": "safetensors"},
-        {"value": "npcache", "label": "npcache"},
-        {"value": "dummy", "label": "dummy"}
+        { "value": "auto", "label": "auto" },
+        { "value": "pt", "label": "pt" },
+        { "value": "safetensors", "label": "safetensors" },
+        { "value": "npcache", "label": "npcache" },
+        { "value": "dummy", "label": "dummy" }
       ]
     },
     "DTYPE": {
@@ -205,12 +199,12 @@
       "required": false,
       "type": "select",
       "options": [
-        {"value": "auto", "label": "auto"},
-        {"value": "half", "label": "half"},
-        {"value": "float16", "label": "float16"},
-        {"value": "bfloat16", "label": "bfloat16"},
-        {"value": "float", "label": "float"},
-        {"value": "float32", "label": "float32"}
+        { "value": "auto", "label": "auto" },
+        { "value": "half", "label": "half" },
+        { "value": "float16", "label": "float16" },
+        { "value": "bfloat16", "label": "bfloat16" },
+        { "value": "float", "label": "float" },
+        { "value": "float32", "label": "float32" }
       ]
     },
     "CONTEXT_LENGTH": {
@@ -229,14 +223,14 @@
       "required": false,
       "type": "select",
       "options": [
-        {"value": "awq", "label": "AWQ"},
-        {"value": "fp8", "label": "FP8"},
-        {"value": "gptq", "label": "GPTQ"},
-        {"value": "marlin", "label": "Marlin"},
-        {"value": "gptq_marlin", "label": "GPTQ Marlin"},
-        {"value": "awq_marlin", "label": "AWQ Marlin"},
-        {"value": "squeezellm", "label": "SqueezeLLM"},
-        {"value": "bitsandbytes", "label": "BitsAndBytes"}
+        { "value": "awq", "label": "AWQ" },
+        { "value": "fp8", "label": "FP8" },
+        { "value": "gptq", "label": "GPTQ" },
+        { "value": "marlin", "label": "Marlin" },
+        { "value": "gptq_marlin", "label": "GPTQ Marlin" },
+        { "value": "awq_marlin", "label": "AWQ Marlin" },
+        { "value": "squeezellm", "label": "SqueezeLLM" },
+        { "value": "bitsandbytes", "label": "BitsAndBytes" }
       ]
     },
     "SERVED_MODEL_NAME": {
@@ -311,10 +305,10 @@
       "required": false,
       "type": "select",
       "options": [
-        {"value": "lpm", "label": "LPM"},
-        {"value": "random", "label": "Random"},
-        {"value": "fcfs", "label": "FCFS"},
-        {"value": "dfs-weight", "label": "DFS Weight"}
+        { "value": "lpm", "label": "LPM" },
+        { "value": "random", "label": "Random" },
+        { "value": "fcfs", "label": "FCFS" },
+        { "value": "dfs-weight", "label": "DFS Weight" }
       ]
     },
     "SCHEDULE_CONSERVATIVENESS": {
@@ -374,12 +368,12 @@
       "type": "text"
     },
     "MAX_CONCURRENCY": {
-    "env_var_name": "MAX_CONCURRENCY",
-    "value": "300",
-    "title": "Max Concurrency",
-    "description": "Max concurrent requests per worker. SGLang has an internal queue, so you don't have to worry about limiting by VRAM, this is for improving scaling/load balancing efficiency",
-    "required": false,
-    "type": "number"
+      "env_var_name": "MAX_CONCURRENCY",
+      "value": "300",
+      "title": "Max Concurrency",
+      "description": "Max concurrent requests per worker. SGLang has an internal queue, so you don't have to worry about limiting by VRAM, this is for improving scaling/load balancing efficiency",
+      "required": false,
+      "type": "number"
     },
     "FILE_STORAGE_PTH": {
       "env_var_name": "FILE_STORAGE_PTH",
@@ -405,8 +399,8 @@
       "required": false,
       "type": "select",
       "options": [
-        {"value": "round_robin", "label": "Round Robin"},
-        {"value": "shortest_queue", "label": "Shortest Queue"}
+        { "value": "round_robin", "label": "Round Robin" },
+        { "value": "shortest_queue", "label": "Shortest Queue" }
       ]
     },
     "NCCL_INIT_ADDR": {
@@ -553,5 +547,5 @@
       "required": false,
       "type": "toggle"
     }
-}
+  }
 }
