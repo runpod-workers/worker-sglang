@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install flashinfer
 
 # install our own python dependencies
 COPY requirements.txt ./requirements.txt
-RUN --mount-type=cache,target=/root/.cache/pip python3 -m pip install --upgrade -r ./requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip python3 -m pip install --upgrade -r ./requirements.txt
 
 # not sure why this is here: is a vllm-workspace even in our image?
 # ENV PYTHONPATH="/:/vllm-workspace" 
