@@ -1,8 +1,12 @@
-FROM nvidia/cuda:12.1.0-base-ubuntu22.04 
+FROM nvidia/cuda:12.1.0-devel-ubuntu22.04 
 
-RUN apt-get update -y \
-    && apt-get install -y python3-pip
+# Install system dependencies
+RUN apt-get update -y && \
+    apt-get install -y python3-pip python3-dev build-essential git cmake && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
+# Configure CUDA paths
 RUN ldconfig /usr/local/cuda-12.1/compat/
 
 # Install Python dependencies
@@ -11,8 +15,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python3 -m pip install --upgrade pip && \
     python3 -m pip install --upgrade -r /requirements.txt
 
-RUN python3 -m pip install "sglang[all]" && \
-    python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3
+# Install sglang and flashinfer with specific versions and extra error handling
+RUN python3 -m pip install torch>=2.3.0 && \
+    python3 -m pip install "sglang[all]" --no-build-isolation && \
+    python3 -m pip install --upgrade pip && \
+    python3 -m pip install flashinfer --index-url https://flashinfer.ai/whl/cu121/torch2.3
 
 # Setup for Option 2: Building the Image with the Model included
 ARG MODEL_NAME=""
@@ -35,8 +42,11 @@ ENV MODEL_NAME=$MODEL_NAME \
 
 ENV PYTHONPATH="/:/vllm-workspace"
 
-
+# Copy source code and test input
 COPY src /src
+COPY test_input.json /test_input.json
+
+# Download model if specified
 RUN --mount=type=secret,id=HF_TOKEN,required=false \
     if [ -f /run/secrets/HF_TOKEN ]; then \
         export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
