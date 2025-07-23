@@ -1,0 +1,7 @@
+{
+  "input": {
+    "prompt": "What is artificial intelligence?",
+    "max_tokens": 100,
+    "temperature": 0.7
+  }
+}
