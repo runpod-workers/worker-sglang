@@ -4,7 +4,7 @@ Run LLMs and VLMs using [SGLang](https://docs.sglang.ai)
 
 ---
 
-[![RunPod](https://api.runpod.io/badge/timpietrusky/sglang)](https://www.runpod.io/console/hub/timpietrusky/sglang)
+[![RunPod](https://api.runpod.io/badge/runpod-workers/worker-sglang)](https://www.runpod.io/console/hub/runpod-workers/worker-sglang)
 
 ---
 

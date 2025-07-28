@@ -1,0 +1,557 @@
+{
+  "versions": {
+    "0.4.1": {
+      "imageName": "runpod/worker-sglang:v0.4.1stable",
+      "minimumCudaVersion": "12.1",
+      "categories": [
+        {
+          "title": "Model Settings",
+          "settings": [
+            "TOKENIZER_PATH",
+            "CONTEXT_LENGTH",
+            "QUANTIZATION",
+            "LOAD_FORMAT",
+            "DTYPE",
+            "CHAT_TEMPLATE",
+            "SERVED_MODEL_NAME"
+          ]
+        },
+        {
+          "title": "Server Configuration",
+          "settings": [
+            "HOST",
+            "PORT",
+            "ADDITIONAL_PORTS",
+            "API_KEY",
+            "MAX_CONCURRENCY",
+            "LOG_LEVEL",
+            "LOG_LEVEL_HTTP",
+            "FILE_STORAGE_PTH"
+          ]
+        },
+        {
+          "title": "Performance Settings",
+          "settings": [
+            "MEM_FRACTION_STATIC",
+            "MAX_RUNNING_REQUESTS",
+            "MAX_NUM_REQS",
+            "MAX_TOTAL_TOKENS",
+            "MAX_PREFILL_TOKENS",
+            "CHUNKED_PREFILL_SIZE",
+            "STREAM_INTERVAL"
+          ]
+        },
+        {
+          "title": "Parallelization Settings",
+          "settings": [
+            "TENSOR_PARALLEL_SIZE",
+            "DATA_PARALLEL_SIZE",
+            "NNODES",
+            "NODE_RANK",
+            "NCCL_INIT_ADDR"
+          ]
+        },
+        {
+          "title": "Scheduling Settings",
+          "settings": [
+            "SCHEDULE_POLICY",
+            "SCHEDULE_CONSERVATIVENESS",
+            "LOAD_BALANCE_METHOD"
+          ]
+        },
+        {
+          "title": "Tokenizer Settings",
+          "settings": [
+            "TOKENIZER_MODE",
+            "RANDOM_SEED"
+          ]
+        }
+      ]
+    },
+    "0.3.3": {
+      "imageName": "runpod/worker-sglang:v0.3.3stable",
+      "minimumCudaVersion": "12.1",
+      "categories": [
+        {
+          "title": "Model Settings",
+          "settings": [
+            "TOKENIZER_PATH",
+            "CONTEXT_LENGTH",
+            "QUANTIZATION",
+            "LOAD_FORMAT",
+            "DTYPE",
+            "CHAT_TEMPLATE",
+            "SERVED_MODEL_NAME"
+          ]
+        },
+        {
+          "title": "Server Configuration",
+          "settings": [
+            "HOST",
+            "PORT",
+            "ADDITIONAL_PORTS",
+            "API_KEY",
+            "MAX_CONCURRENCY",
+            "LOG_LEVEL",
+            "LOG_LEVEL_HTTP",
+            "FILE_STORAGE_PTH"
+          ]
+        },
+        {
+          "title": "Performance Settings",
+          "settings": [
+            "MEM_FRACTION_STATIC",
+            "MAX_RUNNING_REQUESTS",
+            "MAX_NUM_REQS",
+            "MAX_TOTAL_TOKENS",
+            "MAX_PREFILL_TOKENS",
+            "CHUNKED_PREFILL_SIZE",
+            "STREAM_INTERVAL"
+          ]
+        },
+        {
+          "title": "Parallelization Settings",
+          "settings": [
+            "TENSOR_PARALLEL_SIZE",
+            "DATA_PARALLEL_SIZE",
+            "NNODES",
+            "NODE_RANK",
+            "NCCL_INIT_ADDR"
+          ]
+        },
+        {
+          "title": "Scheduling Settings",
+          "settings": [
+            "SCHEDULE_POLICY",
+            "SCHEDULE_CONSERVATIVENESS",
+            "LOAD_BALANCE_METHOD"
+          ]
+        },
+        {
+          "title": "Tokenizer Settings",
+          "settings": [
+            "TOKENIZER_MODE",
+            "RANDOM_SEED"
+          ]
+        }
+      ]
+    }
+  },
+  "schema": {
+    "HOST": {
+      "env_var_name": "HOST",
+      "value": "0.0.0.0",
+      "title": "Host",
+      "description": "Host of the server",
+      "required": false,
+      "type": "text"
+    },
+    "PORT": {
+      "env_var_name": "PORT",
+      "value": 30000,
+      "title": "Port",
+      "description": "Port of the server",
+      "required": false,
+      "type": "number"
+    },
+    "TOKENIZER_PATH": {
+      "env_var_name": "TOKENIZER_PATH",
+      "value": "",
+      "title": "Tokenizer Path",
+      "description": "Path of the tokenizer",
+      "required": false,
+      "type": "text"
+    },
+    "ADDITIONAL_PORTS": {
+      "env_var_name": "ADDITIONAL_PORTS",
+      "value": "",
+      "title": "Additional Ports",
+      "description": "Additional ports for the server",
+      "required": false,
+      "type": "text"
+    },
+    "TOKENIZER_MODE": {
+      "env_var_name": "TOKENIZER_MODE",
+      "value": "auto",
+      "title": "Tokenizer Mode",
+      "description": "Tokenizer mode",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "auto", "label": "auto"},
+        {"value": "slow", "label": "slow"}
+      ]
+    },
+    "LOAD_FORMAT": {
+      "env_var_name": "LOAD_FORMAT",
+      "value": "auto",
+      "title": "Load Format",
+      "description": "Format of model weights to load",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "auto", "label": "auto"},
+        {"value": "pt", "label": "pt"},
+        {"value": "safetensors", "label": "safetensors"},
+        {"value": "npcache", "label": "npcache"},
+        {"value": "dummy", "label": "dummy"}
+      ]
+    },
+    "DTYPE": {
+      "env_var_name": "DTYPE",
+      "value": "auto",
+      "title": "Data Type",
+      "description": "Data type for weights and activations",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "auto", "label": "auto"},
+        {"value": "half", "label": "half"},
+        {"value": "float16", "label": "float16"},
+        {"value": "bfloat16", "label": "bfloat16"},
+        {"value": "float", "label": "float"},
+        {"value": "float32", "label": "float32"}
+      ]
+    },
+    "CONTEXT_LENGTH": {
+      "env_var_name": "CONTEXT_LENGTH",
+      "value": "",
+      "title": "Context Length",
+      "description": "Model's maximum context length",
+      "required": false,
+      "type": "number"
+    },
+    "QUANTIZATION": {
+      "env_var_name": "QUANTIZATION",
+      "value": "",
+      "title": "Quantization",
+      "description": "Quantization method",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "awq", "label": "AWQ"},
+        {"value": "fp8", "label": "FP8"},
+        {"value": "gptq", "label": "GPTQ"},
+        {"value": "marlin", "label": "Marlin"},
+        {"value": "gptq_marlin", "label": "GPTQ Marlin"},
+        {"value": "awq_marlin", "label": "AWQ Marlin"},
+        {"value": "squeezellm", "label": "SqueezeLLM"},
+        {"value": "bitsandbytes", "label": "BitsAndBytes"}
+      ]
+    },
+    "SERVED_MODEL_NAME": {
+      "env_var_name": "SERVED_MODEL_NAME",
+      "value": "",
+      "title": "Served Model Name",
+      "description": "Override model name in API",
+      "required": false,
+      "type": "text"
+    },
+    "CHAT_TEMPLATE": {
+      "env_var_name": "CHAT_TEMPLATE",
+      "value": "",
+      "title": "Chat Template",
+      "description": "Chat template name or path",
+      "required": false,
+      "type": "text"
+    },
+    "MEM_FRACTION_STATIC": {
+      "env_var_name": "MEM_FRACTION_STATIC",
+      "value": "",
+      "title": "Memory Fraction Static",
+      "description": "Fraction of memory for static allocation",
+      "required": false,
+      "type": "number"
+    },
+    "MAX_RUNNING_REQUESTS": {
+      "env_var_name": "MAX_RUNNING_REQUESTS",
+      "value": "",
+      "title": "Max Running Requests",
+      "description": "Maximum number of running requests",
+      "required": false,
+      "type": "number"
+    },
+    "MAX_NUM_REQS": {
+      "env_var_name": "MAX_NUM_REQS",
+      "value": "",
+      "title": "Max Number of Requests",
+      "description": "Maximum requests in memory pool",
+      "required": false,
+      "type": "number"
+    },
+    "MAX_TOTAL_TOKENS": {
+      "env_var_name": "MAX_TOTAL_TOKENS",
+      "value": "",
+      "title": "Max Total Tokens",
+      "description": "Maximum tokens in memory pool",
+      "required": false,
+      "type": "number"
+    },
+    "CHUNKED_PREFILL_SIZE": {
+      "env_var_name": "CHUNKED_PREFILL_SIZE",
+      "value": "",
+      "title": "Chunked Prefill Size",
+      "description": "Max tokens in chunk for chunked prefill",
+      "required": false,
+      "type": "number"
+    },
+    "MAX_PREFILL_TOKENS": {
+      "env_var_name": "MAX_PREFILL_TOKENS",
+      "value": "",
+      "title": "Max Prefill Tokens",
+      "description": "Max tokens in prefill batch",
+      "required": false,
+      "type": "number"
+    },
+    "SCHEDULE_POLICY": {
+      "env_var_name": "SCHEDULE_POLICY",
+      "value": "",
+      "title": "Schedule Policy",
+      "description": "Request scheduling policy",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "lpm", "label": "LPM"},
+        {"value": "random", "label": "Random"},
+        {"value": "fcfs", "label": "FCFS"},
+        {"value": "dfs-weight", "label": "DFS Weight"}
+      ]
+    },
+    "SCHEDULE_CONSERVATIVENESS": {
+      "env_var_name": "SCHEDULE_CONSERVATIVENESS",
+      "value": "",
+      "title": "Schedule Conservativeness",
+      "description": "Conservativeness of schedule policy",
+      "required": false,
+      "type": "number"
+    },
+    "TENSOR_PARALLEL_SIZE": {
+      "env_var_name": "TENSOR_PARALLEL_SIZE",
+      "value": "",
+      "title": "Tensor Parallel Size",
+      "description": "Tensor parallelism size",
+      "required": false,
+      "type": "number"
+    },
+    "STREAM_INTERVAL": {
+      "env_var_name": "STREAM_INTERVAL",
+      "value": "",
+      "title": "Stream Interval",
+      "description": "Streaming interval in token length",
+      "required": false,
+      "type": "number"
+    },
+    "RANDOM_SEED": {
+      "env_var_name": "RANDOM_SEED",
+      "value": "",
+      "title": "Random Seed",
+      "description": "Random seed",
+      "required": false,
+      "type": "number"
+    },
+    "LOG_LEVEL": {
+      "env_var_name": "LOG_LEVEL",
+      "value": "",
+      "title": "Log Level",
+      "description": "Logging level for all loggers",
+      "required": false,
+      "type": "text"
+    },
+    "LOG_LEVEL_HTTP": {
+      "env_var_name": "LOG_LEVEL_HTTP",
+      "value": "",
+      "title": "HTTP Log Level",
+      "description": "Logging level for HTTP server",
+      "required": false,
+      "type": "text"
+    },
+    "API_KEY": {
+      "env_var_name": "API_KEY",
+      "value": "",
+      "title": "API Key",
+      "description": "API key for the server",
+      "required": false,
+      "type": "text"
+    },
+    "MAX_CONCURRENCY": {
+    "env_var_name": "MAX_CONCURRENCY",
+    "value": "300",
+    "title": "Max Concurrency",
+    "description": "Max concurrent requests per worker. SGLang has an internal queue, so you don't have to worry about limiting by VRAM, this is for improving scaling/load balancing efficiency",
+    "required": false,
+    "type": "number"
+    },
+    "FILE_STORAGE_PTH": {
+      "env_var_name": "FILE_STORAGE_PTH",
+      "value": "",
+      "title": "File Storage Path",
+      "description": "Path of file storage in backend",
+      "required": false,
+      "type": "text"
+    },
+    "DATA_PARALLEL_SIZE": {
+      "env_var_name": "DATA_PARALLEL_SIZE",
+      "value": "",
+      "title": "Data Parallel Size",
+      "description": "Data parallelism size",
+      "required": false,
+      "type": "number"
+    },
+    "LOAD_BALANCE_METHOD": {
+      "env_var_name": "LOAD_BALANCE_METHOD",
+      "value": "",
+      "title": "Load Balance Method",
+      "description": "Load balancing strategy",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "round_robin", "label": "Round Robin"},
+        {"value": "shortest_queue", "label": "Shortest Queue"}
+      ]
+    },
+    "NCCL_INIT_ADDR": {
+      "env_var_name": "NCCL_INIT_ADDR",
+      "value": "",
+      "title": "NCCL Init Address",
+      "description": "NCCL init address for multi-node",
+      "required": false,
+      "type": "text"
+    },
+    "NNODES": {
+      "env_var_name": "NNODES",
+      "value": "",
+      "title": "Number of Nodes",
+      "description": "Number of nodes",
+      "required": false,
+      "type": "number"
+    },
+    "NODE_RANK": {
+      "env_var_name": "NODE_RANK",
+      "value": "",
+      "title": "Node Rank",
+      "description": "Node rank",
+      "required": false,
+      "type": "number"
+    },
+    "SKIP_TOKENIZER_INIT": {
+      "env_var_name": "SKIP_TOKENIZER_INIT",
+      "value": false,
+      "title": "Skip Tokenizer Init",
+      "description": "Skip tokenizer init",
+      "required": false,
+      "type": "toggle"
+    },
+    "TRUST_REMOTE_CODE": {
+      "env_var_name": "TRUST_REMOTE_CODE",
+      "value": false,
+      "title": "Trust Remote Code",
+      "description": "Allow custom models from Hub",
+      "required": false,
+      "type": "toggle"
+    },
+    "LOG_REQUESTS": {
+      "env_var_name": "LOG_REQUESTS",
+      "value": false,
+      "title": "Log Requests",
+      "description": "Log inputs and outputs of requests",
+      "required": false,
+      "type": "toggle"
+    },
+    "SHOW_TIME_COST": {
+      "env_var_name": "SHOW_TIME_COST",
+      "value": false,
+      "title": "Show Time Cost",
+      "description": "Show time cost of custom marks",
+      "required": false,
+      "type": "toggle"
+    },
+    "DISABLE_FLASHINFER": {
+      "env_var_name": "DISABLE_FLASHINFER",
+      "value": false,
+      "title": "Disable Flashinfer",
+      "description": "Disable flashinfer attention kernels",
+      "required": false,
+      "type": "toggle"
+    },
+    "DISABLE_FLASHINFER_SAMPLING": {
+      "env_var_name": "DISABLE_FLASHINFER_SAMPLING",
+      "value": false,
+      "title": "Disable Flashinfer Sampling",
+      "description": "Disable flashinfer sampling kernels",
+      "required": false,
+      "type": "toggle"
+    },
+    "DISABLE_RADIX_CACHE": {
+      "env_var_name": "DISABLE_RADIX_CACHE",
+      "value": false,
+      "title": "Disable Radix Cache",
+      "description": "Disable RadixAttention for prefix caching",
+      "required": false,
+      "type": "toggle"
+    },
+    "DISABLE_REGEX_JUMP_FORWARD": {
+      "env_var_name": "DISABLE_REGEX_JUMP_FORWARD",
+      "value": false,
+      "title": "Disable Regex Jump Forward",
+      "description": "Disable regex jump-forward",
+      "required": false,
+      "type": "toggle"
+    },
+    "DISABLE_CUDA_GRAPH": {
+      "env_var_name": "DISABLE_CUDA_GRAPH",
+      "value": false,
+      "title": "Disable CUDA Graph",
+      "description": "Disable cuda graph",
+      "required": false,
+      "type": "toggle"
+    },
+    "DISABLE_DISK_CACHE": {
+      "env_var_name": "DISABLE_DISK_CACHE",
+      "value": false,
+      "title": "Disable Disk Cache",
+      "description": "Disable disk cache",
+      "required": false,
+      "type": "toggle"
+    },
+    "ENABLE_TORCH_COMPILE": {
+      "env_var_name": "ENABLE_TORCH_COMPILE",
+      "value": false,
+      "title": "Enable Torch Compile",
+      "description": "Optimize model with torch.compile",
+      "required": false,
+      "type": "toggle"
+    },
+    "ENABLE_P2P_CHECK": {
+      "env_var_name": "ENABLE_P2P_CHECK",
+      "value": false,
+      "title": "Enable P2P Check",
+      "description": "Enable P2P check for GPU access",
+      "required": false,
+      "type": "toggle"
+    },
+    "ENABLE_MLA": {
+      "env_var_name": "ENABLE_MLA",
+      "value": false,
+      "title": "Enable MLA",
+      "description": "Enable Multi-head Latent Attention",
+      "required": false,
+      "type": "toggle"
+    },
+    "ATTENTION_REDUCE_IN_FP32": {
+      "env_var_name": "ATTENTION_REDUCE_IN_FP32",
+      "value": false,
+      "title": "Attention Reduce in FP32",
+      "description": "Cast attention results to fp32",
+      "required": false,
+      "type": "toggle"
+    },
+    "EFFICIENT_WEIGHT_LOAD": {
+      "env_var_name": "EFFICIENT_WEIGHT_LOAD",
+      "value": false,
+      "title": "Efficient Weight Load",
+      "description": "Enable memory efficient weight loading",
+      "required": false,
+      "type": "toggle"
+    }
+}
+}
