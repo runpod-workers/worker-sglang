@@ -1,32 +1,26 @@
-variable "PUSH" {
-  default = "true"
-}
-
-variable "REPOSITORY" {
+variable "DOCKERHUB_REPO" {
   default = "runpod"
 }
 
-variable "BASE_IMAGE_VERSION" {
-  default = "preview"
+variable "DOCKERHUB_IMG" {
+  default = "worker-sglang"
 }
 
-group "all" {
-  targets = ["main"]
+variable "RELEASE_VERSION" {
+  default = "latest"
 }
 
-
-group "main" {
-  targets = ["worker-1210"]
+variable "HUGGINGFACE_ACCESS_TOKEN" {
+  default = ""
 }
 
- 
-target "worker-1210" {
-  tags = ["${REPOSITORY}/worker-sglang:${BASE_IMAGE_VERSION}-cuda12.1.0"]
+group "default" {
+  targets = ["worker-sglang"]
+}
+
+target "worker-sglang" {
+  tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}"]
   context = "."
   dockerfile = "Dockerfile"
-  args = {
-    BASE_IMAGE_VERSION = "${BASE_IMAGE_VERSION}"
-    WORKER_CUDA_VERSION = "12.1.0"
-  }
-  output = ["type=docker,push=${PUSH}"]
+  platforms = ["linux/amd64"]
 }

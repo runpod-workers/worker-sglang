@@ -17,8 +17,9 @@ Update `worker-sglang` to match the modern structure while preserving functional
 
 ### Structure Migration
 
-- [ ] Remove deprecated `builder/` folder and its contents
-- [ ] Remove deprecated `src/` folder and its contents
+- [ ] Move deprecated folders to preserve them for comparison:
+  - Move `builder/` folder to `outdated/builder/`
+  - Move `src/` folder to `outdated/src/`
 - [ ] Move core files from `sglang/.runpod/` to `worker-sglang/` root:
   - `handler.py`
   - `engine.py`
@@ -35,12 +36,15 @@ Update `worker-sglang` to match the modern structure while preserving functional
 - [ ] Create `worker-sglang/.runpod/` folder containing only:
   - `hub.json` (RunPod Hub configuration)
   - `tests.json` (Hub testing configuration)
-- [ ] Remove old `worker-config.json` (replaced by `hub.json`)
+- [ ] Move old `worker-config.json` to `outdated/worker-config.json` (replaced by `hub.json`)
 
 ### Preservation & Compatibility
 
 - [ ] Compare current `worker-sglang` files with `sglang/.runpod` equivalents
-- [ ] Preserve any valuable additions or configurations from current `worker-sglang`
+- [ ] Compare `outdated/src/` files with new root-level files to identify missing features
+- [ ] Compare `outdated/builder/` setup with new structure requirements
+- [ ] Compare `outdated/worker-config.json` with new `hub.json` for missing configurations
+- [ ] Preserve any valuable additions or configurations from outdated structure
 - [ ] Ensure environment variable compatibility is maintained
 - [ ] Update any worker-specific customizations if needed
 
@@ -49,13 +53,19 @@ Update `worker-sglang` to match the modern structure while preserving functional
 - [ ] Verify Docker build succeeds with new structure
 - [ ] Confirm RunPod Hub compatibility with new `hub.json`
 - [ ] Test that all original functionality is preserved
+- [ ] Validate that no critical features from `outdated/` folders are missing
+
+### Cleanup (Final Step)
+
+- [ ] Only after confirming no missing features: Remove `outdated/` folder and its contents
 
 ## Files to Review for Differences
 
-- Compare `worker-sglang/src/handler.py` vs `sglang/.runpod/handler.py`
-- Compare `worker-sglang/src/engine.py` vs `sglang/.runpod/engine.py`
+- Compare `outdated/src/handler.py` vs `sglang/.runpod/handler.py` vs new `handler.py`
+- Compare `outdated/src/engine.py` vs `sglang/.runpod/engine.py` vs new `engine.py`
+- Compare `outdated/builder/` setup vs `sglang/.runpod/` structure requirements
 - Compare `worker-sglang/Dockerfile` vs `sglang/.runpod/Dockerfile`
-- Review `worker-sglang/worker-config.json` vs `sglang/.runpod/hub.json` for missing configurations
+- Review `outdated/worker-config.json` vs `sglang/.runpod/hub.json` for missing configurations
 
 ## Success Metrics
 
