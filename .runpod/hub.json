@@ -324,6 +324,17 @@
         }
       },
       {
+        "key": "IS_EMBEDDING",
+        "input": {
+          "name": "Is Embedding Model",
+          "type": "boolean",
+          "description": "Set to true if using an embedding model",
+          "default": false,
+          "required": false,
+          "advanced": true
+        }
+      },
+      {
         "key": "SKIP_TOKENIZER_INIT",
         "input": {
           "name": "Skip Tokenizer Init",
