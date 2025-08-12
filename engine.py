@@ -64,6 +64,7 @@ class SGlangEngine:
 
         # Boolean flags
         boolean_flags = [
+            "IS_EMBEDDING",
             "SKIP_TOKENIZER_INIT",
             "TRUST_REMOTE_CODE",
             "LOG_REQUESTS",
