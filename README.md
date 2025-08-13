@@ -50,6 +50,7 @@ All behaviour is controlled through environment variables:
 | `ENABLE_P2P_CHECK`                | Enable P2P check for GPU access                | false                                 | boolean (true or false)                                                                   |
 | `ENABLE_FLASHINFER_MLA`           | Enable FlashInfer MLA optimization             | false                                 | boolean (true or false)                                                                   |
 | `TRITON_ATTENTION_REDUCE_IN_FP32` | Cast Triton attention reduce op to FP32        | false                                 | boolean (true or false)                                                                   |
+| `TOOL_CALL_PARSER`                | Defines the parser used to interpret responses | qwen25                                | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"                                     |
 
 ## API Specification
 
