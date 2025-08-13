@@ -13,7 +13,8 @@
             "LOAD_FORMAT",
             "DTYPE",
             "CHAT_TEMPLATE",
-            "SERVED_MODEL_NAME"
+            "SERVED_MODEL_NAME",
+            "TOOL_CALL_PARSER"
           ]
         },
         {
@@ -211,6 +212,21 @@
         {"value": "bfloat16", "label": "bfloat16"},
         {"value": "float", "label": "float"},
         {"value": "float32", "label": "float32"}
+      ]
+    },
+    "TOOL_CALL_PARSER": {
+      "env_var_name": "TOOL_CALL_PARSER",
+      "value": "qwen25",
+      "title": "Tool Call Parser",
+      "description": "Defines the parser used to interpret responses",
+      "required": false,
+      "type": "select",
+      "options": [
+        {"value": "llama3", "label": "llama3"},
+        {"value": "llama4", "label": "llama4"},
+        {"value": "mistral", "label": "mistral"},
+        {"value": "qwen25", "label": "qwen25"},
+        {"value": "deepseekv3", "label": "deepseekv3"}
       ]
     },
     "CONTEXT_LENGTH": {
