@@ -31,6 +31,24 @@
         }
       },
       {
+        "key": "TOOL_CALL_PARSER",
+        "input": {
+          "name": "Tool Call Parser",
+          "type": "string",
+          "description": "Defines the parser used to interpret tool call responses",
+          "default": "",
+          "required": false,
+          "advanced": true,
+          "options": [
+            { "value": "llama3", "label": "llama3" },
+            { "value": "llama4", "label": "llama4" },
+            { "value": "mistral", "label": "mistral" },
+            { "value": "qwen25", "label": "qwen25" },
+            { "value": "deepseekv3", "label": "deepseekv3" }
+          ]
+        }
+      },
+      {
         "key": "TOKENIZER_PATH",
         "input": {
           "name": "Tokenizer Path",

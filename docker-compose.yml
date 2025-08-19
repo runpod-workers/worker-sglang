@@ -14,10 +14,12 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=30000
-      - MODEL_PATH=HuggingFaceTB/SmolLM2-1.7B-Instruct
+      - MODEL_PATH=meta-llama/Llama-3.2-1B-Instruct
       - TRUST_REMOTE_CODE=true
       - ATTENTION_BACKEND=flashinfer
       - SAMPLING_BACKEND=flashinfer
+      - TOOL_CALL_PARSER=llama3
+      - HF_TOKEN=${HF_TOKEN}
 
       # make it work locally with <= 8 GB VRAM
       - MEM_FRACTION_STATIC=0.5

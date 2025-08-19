@@ -27,14 +27,40 @@ Welcome! This guide explains how to develop and deploy the SGLang Worker for Run
 git clone <repo-url>
 cd worker-sglang
 
+# Create .env file for Hugging Face token (required for gated models)
+echo "HF_TOKEN=your_huggingface_token_here" > .env
+
 # Build locally for testing (optional - will be built in CI)
 docker build --platform linux/amd64 -t worker-sglang-local .
 
-# Test with docker-compose
+# Test with docker-compose (will automatically use .env file)
 docker-compose up
 ```
 
-### 3. Making Changes
+### 3. Environment Configuration
+
+The project uses a `.env` file for local development. Docker Compose automatically reads this file.
+
+**Required for local testing:**
+
+```bash
+# .env file (create in project root)
+HF_TOKEN=your_huggingface_token_here
+```
+
+**Getting your HF_TOKEN:**
+
+1. Go to [Hugging Face Settings](https://huggingface.co/settings/tokens)
+2. Create a new token with "Read" permissions
+3. Copy the token to your `.env` file
+
+**⚠️ Security Note:**
+
+- Never commit the `.env` file to git
+- The `.env` file is already in `.gitignore`
+- Use environment variables in production/CI
+
+### 4. Making Changes
 
 1. **Create feature branch:**
 
@@ -44,7 +70,7 @@ docker-compose up
 
 2. **Make your changes** to:
 
-   - Core files in `.runpod/` directory
+   - Core files in project root
    - Configuration files
    - Documentation
 
@@ -54,8 +80,11 @@ docker-compose up
    # Test Docker build
    docker build --platform linux/amd64 -t test-build .
 
-   # Test with sample input
+   # Test with sample input (ensure .env file exists first)
    docker run --rm test-build python3 -c "import handler; print('Import successful')"
+
+   # Test with docker-compose (uses .env automatically)
+   docker-compose up
    ```
 
 4. **Commit following conventions:**
