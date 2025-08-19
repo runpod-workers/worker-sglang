@@ -14,10 +14,20 @@
       {
         "key": "MODEL_PATH",
         "input": {
-          "name": "Model Path",
+          "name": "Model",
           "type": "huggingface",
-          "description": "Hugging Face model name or path to load",
+          "description": "Hugging Face model name",
           "required": true
+        }
+      },
+      {
+        "key": "HF_TOKEN",
+        "input": {
+          "name": "Access Token",
+          "type": "string",
+          "description": "Hugging Face access token for gated & private models",
+          "default": "",
+          "required": false
         }
       },
       {
