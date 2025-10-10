@@ -1,8 +1,8 @@
-FROM lmsysorg/sglang:v0.4.6.post4-cu124
+FROM lmsysorg/sglang:v0.5.2-cu126
 
 # Install uv package manager
 RUN curl -Ls https://astral.sh/uv/install.sh | sh \
-    && ln -s /root/.local/bin/uv /usr/local/bin/uv
+    && ln -sf /root/.local/bin/uv /usr/local/bin/uv
 ENV PATH="/root/.local/bin:${PATH}"
 
 # Set working directory to the one already used by the base image

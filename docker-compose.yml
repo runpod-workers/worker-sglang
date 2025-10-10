@@ -19,6 +19,7 @@ services:
       - ATTENTION_BACKEND=flashinfer
       - SAMPLING_BACKEND=flashinfer
       - TOOL_CALL_PARSER=llama3
+      # - REASONING_PARSER=llama3
       - HF_TOKEN=${HF_TOKEN}
 
       # make it work locally with <= 8 GB VRAM
