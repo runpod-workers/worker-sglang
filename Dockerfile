@@ -18,14 +18,14 @@ COPY handler.py engine.py utils.py download_model.py test_input.json ./
 COPY public/ ./public/
 
 # Setup for Option 2: Building the Image with the Model included
-ARG MODEL_PATH=""
+ARG MODEL_NAME=""
 ARG TOKENIZER_NAME=""
 ARG BASE_PATH="/runpod-volume"
 ARG QUANTIZATION=""
 ARG MODEL_REVISION=""
 ARG TOKENIZER_REVISION=""
 
-ENV MODEL_PATH=$MODEL_PATH \
+ENV MODEL_NAME=$MODEL_NAME \
     MODEL_REVISION=$MODEL_REVISION \
     TOKENIZER_NAME=$TOKENIZER_NAME \
     TOKENIZER_REVISION=$TOKENIZER_REVISION \
@@ -42,7 +42,7 @@ RUN --mount=type=secret,id=HF_TOKEN,required=false \
     if [ -f /run/secrets/HF_TOKEN ]; then \
         export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \
     fi && \
-    if [ -n "$MODEL_PATH" ]; then \
+    if [ -n "$MODEL_NAME" ]; then \
         python3 download_model.py; \
     fi
 

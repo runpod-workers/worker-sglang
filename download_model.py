@@ -17,7 +17,7 @@ def setup_env():
         os.environ.update(
             {
                 "HF_HOME": f"{BASE_DIR}/hf_cache",
-                "MODEL_PATH": "openchat/openchat-3.5-0106",
+                "MODEL_NAME": "openchat/openchat-3.5-0106",
                 "HF_HUB_ENABLE_HF_TRANSFER": "1",
                 "TENSORIZE": "1",
                 "TENSORIZER_NUM_GPUS": "1",
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     setup_env()
     cache_dir = os.getenv("HF_HOME")
     model_name, model_revision = (
-        os.getenv("MODEL_PATH"),
+        os.getenv("MODEL_NAME"),
         os.getenv("MODEL_REVISION") or None,
     )
     tokenizer_name, tokenizer_revision = (
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     model_path_downloaded = download(model_name, model_revision, "model", cache_dir)
 
     metadata = {
-        "MODEL_PATH": model_path_downloaded,
+        "MODEL_NAME": model_path_downloaded,
         "MODEL_REVISION": os.getenv("MODEL_REVISION"),
         "QUANTIZATION": os.getenv("QUANTIZATION"),
     }

@@ -45,7 +45,7 @@
 feat(docker): add github workflow for automated builds
 fix(handler): resolve openai compatibility issue
 docs(readme): update installation instructions
-refactor(engine): migrate from MODEL_NAME to MODEL_PATH
+refactor(engine): migrate from MODEL_PATH to MODEL_NAME
 chore(deps): update requirements.txt
 ```
 
