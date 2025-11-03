@@ -14,7 +14,7 @@ All behaviour is controlled through environment variables:
 
 | Environment Variable              | Description                                       | Default                               | Options                                                                                   |
 | --------------------------------- | ------------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `MODEL_PATH`                      | Path of the model weights                         | "meta-llama/Meta-Llama-3-8B-Instruct" | Local folder or Hugging Face repo ID                                                      |
+| `MODEL_NAME`                      | Hugging Face model name or local path             | "meta-llama/Meta-Llama-3-8B-Instruct" | Hugging Face repo ID or local folder path                                                 |
 | `HF_TOKEN`                        | HuggingFace access token for gated/private models |                                       | Your HuggingFace access token                                                             |
 | `TOKENIZER_PATH`                  | Path of the tokenizer                             |                                       |                                                                                           |
 | `TOKENIZER_MODE`                  | Tokenizer mode                                    | "auto"                                | "auto", "slow"                                                                            |
