@@ -60,7 +60,8 @@ class SGlangEngine:
             "LOAD_BALANCE_METHOD": "--load-balance-method",
             "ATTENTION_BACKEND": "--attention-backend",
             "SAMPLING_BACKEND": "--sampling-backend",
-            "TOOL_CALL_PARSER": "--tool-call-parser"
+            "TOOL_CALL_PARSER": "--tool-call-parser",
+            "REASONING_PARSER": "--reasoning-parser",
         }
 
         # Boolean flags

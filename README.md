@@ -51,7 +51,19 @@ All behaviour is controlled through environment variables:
 | `ENABLE_P2P_CHECK`                | Enable P2P check for GPU access                   | false                                 | boolean (true or false)                                                                   |
 | `ENABLE_FLASHINFER_MLA`           | Enable FlashInfer MLA optimization                | false                                 | boolean (true or false)                                                                   |
 | `TRITON_ATTENTION_REDUCE_IN_FP32` | Cast Triton attention reduce op to FP32           | false                                 | boolean (true or false)                                                                   |
-| `TOOL_CALL_PARSER`                | Defines the parser used to interpret responses    | qwen25                                | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"                                     |
+| `TOOL_CALL_PARSER`                | Defines the parser used to interpret responses    |                                       | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"                                     |
+| `REASONING_PARSER`                | Defines the parser used for reasoning traces      |                                       | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"                                     |
+
+## Tool/Function Calling and Reasoning
+
+- **Tool/Function calling**: Set the `TOOL_CALL_PARSER` environment variable to match your model family. Supported values: `llama3`, `llama4`, `mistral`, `qwen25`, `deepseekv3`. If unset, this worker does not pass `--tool-call-parser` to SGLang.
+
+  - Example (docker-compose): add `TOOL_CALL_PARSER=llama3` under `environment:`.
+  - Example (RunPod Hub): set the `TOOL_CALL_PARSER` env var in the UI.
+
+- **Reasoning**: Set the `REASONING_PARSER` environment variable to match your model family if you want to enable reasoning traces parsing. If unset, this worker does not pass `--reasoning-parser` to SGLang.
+  - Example (docker-compose): add `# REASONING_PARSER=llama3` under `environment:` (uncomment to use).
+  - Example (RunPod Hub): set the `REASONING_PARSER` env var in the UI.
 
 ## API Usage
 
