@@ -39,6 +39,9 @@ async def async_handler(job):
         headers = {"Content-Type": "application/json"}
 
         response = requests.post(openai_url, headers=headers, json=openai_input)
+        if response.status_code != 200:
+            yield {"error": f"Request failed with status code {response.status_code}", "details": response.text}
+            return
         # Process the streamed response
         if openai_input.get("stream", False):
             for formated_chunk in process_response(response):
@@ -59,7 +62,9 @@ async def async_handler(job):
             job_input["model"] = engine.model or "default"
 
         response = requests.post(openai_url, headers=headers, json=job_input)
-
+        if response.status_code != 200:
+            yield {"error": f"Request failed with status code {response.status_code}", "details": response.text}
+            return
         if job_input.get("stream", False):
             for formated_chunk in process_response(response):
                 yield formated_chunk
