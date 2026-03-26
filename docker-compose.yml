@@ -22,6 +22,26 @@ services:
       # - REASONING_PARSER=llama3
       - HF_TOKEN=${HF_TOKEN}
 
+      # ── Performance ──
+      # - KV_CACHE_DTYPE=fp8_e5m2
+      # - ENABLE_METRICS=true
+      # - ENABLE_CACHE_REPORT=true
+
+      # ── Speculative Decoding ──
+      # - SPECULATIVE_ALGORITHM=EAGLE
+      # - SPECULATIVE_DRAFT_MODEL_PATH=path/to/draft
+      # - SPECULATIVE_NUM_STEPS=5
+      # - SPECULATIVE_NUM_DRAFT_TOKENS=8
+
+      # ── LoRA ──
+      # - LORA_PATHS=path/to/lora1,path/to/lora2
+
+      # ── Parallelism ──
+      # - TENSOR_PARALLEL_SIZE=1
+      # - DATA_PARALLEL_SIZE=1
+      # - PIPELINE_PARALLEL_SIZE=1
+      # - EXPERT_PARALLEL_SIZE=1
+
       # make it work locally with <= 8 GB VRAM
       - MEM_FRACTION_STATIC=0.5
       - CHUNKED_PREFILL_SIZE=512

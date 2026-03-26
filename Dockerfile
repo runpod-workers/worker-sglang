@@ -1,4 +1,4 @@
-FROM lmsysorg/sglang:v0.5.2-cu126
+FROM lmsysorg/sglang:latest
 
 # Install uv package manager
 RUN curl -Ls https://astral.sh/uv/install.sh | sh \
@@ -37,7 +37,6 @@ ENV MODEL_NAME=$MODEL_NAME \
     HF_HUB_ENABLE_HF_TRANSFER=1
 
 # Model download script execution
-# Ensure this script uses python3 and handles paths correctly relative to /app if needed
 RUN --mount=type=secret,id=HF_TOKEN,required=false \
     if [ -f /run/secrets/HF_TOKEN ]; then \
         export HF_TOKEN=$(cat /run/secrets/HF_TOKEN); \

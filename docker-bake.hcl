@@ -24,3 +24,12 @@ target "worker-sglang" {
   dockerfile = "Dockerfile"
   platforms = ["linux/amd64"]
 }
+
+# Runtime-optimized target (~40% smaller image)
+target "worker-sglang-runtime" {
+  inherits = ["worker-sglang"]
+  tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-runtime"]
+  args = {
+    BASE_IMAGE = "lmsysorg/sglang:latest-runtime"
+  }
+}

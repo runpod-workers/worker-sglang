@@ -1,6 +1,6 @@
 ![SGLang worker banner](https://cpjrphpz3t5wbwfe.public.blob.vercel-storage.com/worker-sglang_banner-A9R2vQzvSUmLvqMZ8MzehfZtRDxHJR.jpeg)
 
-Run LLMs and VLMs using [SGLang](https://docs.sglang.ai)
+Run LLMs and VLMs using [SGLang](https://docs.sglang.ai) (v0.5.9+)
 
 ---
 
@@ -12,47 +12,109 @@ Run LLMs and VLMs using [SGLang](https://docs.sglang.ai)
 
 All behaviour is controlled through environment variables:
 
-| Environment Variable              | Description                                       | Default                               | Options                                                                                   |
-| --------------------------------- | ------------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `MODEL_NAME`                      | Hugging Face model name or local path             | "meta-llama/Meta-Llama-3-8B-Instruct" | Hugging Face repo ID or local folder path                                                 |
-| `HF_TOKEN`                        | HuggingFace access token for gated/private models |                                       | Your HuggingFace access token                                                             |
-| `TOKENIZER_PATH`                  | Path of the tokenizer                             |                                       |                                                                                           |
-| `TOKENIZER_MODE`                  | Tokenizer mode                                    | "auto"                                | "auto", "slow"                                                                            |
-| `LOAD_FORMAT`                     | Format of model weights to load                   | "auto"                                | "auto", "pt", "safetensors", "npcache", "dummy"                                           |
-| `DTYPE`                           | Data type for weights and activations             | "auto"                                | "auto", "half", "float16", "bfloat16", "float", "float32"                                 |
-| `CONTEXT_LENGTH`                  | Model's maximum context length                    |                                       |                                                                                           |
-| `QUANTIZATION`                    | Quantization method                               |                                       | "awq", "fp8", "gptq", "marlin", "gptq_marlin", "awq_marlin", "squeezellm", "bitsandbytes" |
-| `SERVED_MODEL_NAME`               | Override model name in API                        |                                       |                                                                                           |
-| `CHAT_TEMPLATE`                   | Chat template name or path                        |                                       |                                                                                           |
-| `MEM_FRACTION_STATIC`             | Fraction of memory for static allocation          |                                       |                                                                                           |
-| `MAX_RUNNING_REQUESTS`            | Maximum number of running requests                |                                       |                                                                                           |
-| `MAX_TOTAL_TOKENS`                | Maximum tokens in memory pool                     |                                       |                                                                                           |
-| `CHUNKED_PREFILL_SIZE`            | Max tokens in chunk for chunked prefill           |                                       |                                                                                           |
-| `MAX_PREFILL_TOKENS`              | Max tokens in prefill batch                       | 16384                                 |                                                                                           |
-| `SCHEDULE_POLICY`                 | Request scheduling policy                         | "fcfs"                                | "lpm", "random", "fcfs", "dfs-weight"                                                     |
-| `SCHEDULE_CONSERVATIVENESS`       | Conservativeness of schedule policy               | 1.0                                   |                                                                                           |
-| `TENSOR_PARALLEL_SIZE`            | Tensor parallelism size                           | 1                                     |                                                                                           |
-| `STREAM_INTERVAL`                 | Streaming interval in token length                | 1                                     |                                                                                           |
-| `RANDOM_SEED`                     | Random seed                                       |                                       |                                                                                           |
-| `LOG_LEVEL`                       | Logging level for all loggers                     | "info"                                |                                                                                           |
-| `LOG_LEVEL_HTTP`                  | Logging level for HTTP server                     |                                       |                                                                                           |
-| `API_KEY`                         | API key for the server                            |                                       |                                                                                           |
-| `FILE_STORAGE_PATH`               | Directory for storing uploaded/generated files    | "sglang_storage"                      |                                                                                           |
-| `DATA_PARALLEL_SIZE`              | Data parallelism size                             | 1                                     |                                                                                           |
-| `LOAD_BALANCE_METHOD`             | Load balancing strategy                           | "round_robin"                         | "round_robin", "shortest_queue"                                                           |
-| `SKIP_TOKENIZER_INIT`             | Skip tokenizer init                               | false                                 | boolean (true or false)                                                                   |
-| `TRUST_REMOTE_CODE`               | Allow custom models from Hub                      | false                                 | boolean (true or false)                                                                   |
-| `LOG_REQUESTS`                    | Log inputs and outputs of requests                | false                                 | boolean (true or false)                                                                   |
-| `SHOW_TIME_COST`                  | Show time cost of custom marks                    | false                                 | boolean (true or false)                                                                   |
-| `DISABLE_RADIX_CACHE`             | Disable RadixAttention for prefix caching         | false                                 | boolean (true or false)                                                                   |
-| `DISABLE_CUDA_GRAPH`              | Disable CUDA Graph                                | false                                 | boolean (true or false)                                                                   |
-| `DISABLE_OUTLINES_DISK_CACHE`     | Disable disk cache for Outlines grammar           | false                                 | boolean (true or false)                                                                   |
-| `ENABLE_TORCH_COMPILE`            | Optimize model with torch.compile                 | false                                 | boolean (true or false)                                                                   |
-| `ENABLE_P2P_CHECK`                | Enable P2P check for GPU access                   | false                                 | boolean (true or false)                                                                   |
-| `ENABLE_FLASHINFER_MLA`           | Enable FlashInfer MLA optimization                | false                                 | boolean (true or false)                                                                   |
-| `TRITON_ATTENTION_REDUCE_IN_FP32` | Cast Triton attention reduce op to FP32           | false                                 | boolean (true or false)                                                                   |
-| `TOOL_CALL_PARSER`                | Defines the parser used to interpret responses    |                                       | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"                                     |
-| `REASONING_PARSER`                | Defines the parser used for reasoning traces      |                                       | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"                                     |
+### Model / Tokenizer
+
+| Environment Variable     | Description                                       | Default                               | Options                                                                                   |
+| ------------------------ | ------------------------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `MODEL_NAME`             | Hugging Face model name or local path             | "meta-llama/Meta-Llama-3-8B-Instruct" | Hugging Face repo ID or local folder path                                                 |
+| `HF_TOKEN`               | HuggingFace access token for gated/private models |                                       | Your HuggingFace access token                                                             |
+| `TOKENIZER_PATH`         | Path of the tokenizer                             |                                       |                                                                                           |
+| `TOKENIZER_MODE`         | Tokenizer mode                                    | "auto"                                | "auto", "slow"                                                                            |
+| `LOAD_FORMAT`            | Format of model weights to load                   | "auto"                                | "auto", "pt", "safetensors", "npcache", "dummy"                                           |
+| `DTYPE`                  | Data type for weights and activations             | "auto"                                | "auto", "half", "float16", "bfloat16", "float", "float32"                                 |
+| `CONTEXT_LENGTH`         | Model's maximum context length                    |                                       |                                                                                           |
+| `QUANTIZATION`           | Quantization method                               |                                       | "awq", "fp8", "fp4", "gptq", "marlin", "gptq_marlin", "awq_marlin", "squeezellm", "bitsandbytes" |
+| `SERVED_MODEL_NAME`      | Override model name in API                        |                                       |                                                                                           |
+| `CHAT_TEMPLATE`          | Chat template name or path                        |                                       |                                                                                           |
+| `JSON_MODEL_OVERRIDE_ARGS` | Override model config arguments (JSON string)  |                                       |                                                                                           |
+
+### Memory / Scheduling
+
+| Environment Variable        | Description                                  | Default  | Options                               |
+| --------------------------- | -------------------------------------------- | -------- | ------------------------------------- |
+| `MEM_FRACTION_STATIC`       | Fraction of memory for static allocation     |          |                                       |
+| `MAX_RUNNING_REQUESTS`      | Maximum number of running requests           |          |                                       |
+| `MAX_TOTAL_TOKENS`          | Maximum tokens in memory pool                |          |                                       |
+| `CHUNKED_PREFILL_SIZE`      | Max tokens in chunk for chunked prefill      |          |                                       |
+| `MAX_PREFILL_TOKENS`        | Max tokens in prefill batch                  | 16384    |                                       |
+| `SCHEDULE_POLICY`           | Request scheduling policy                    | "fcfs"   | "lpm", "random", "fcfs", "dfs-weight" |
+| `SCHEDULE_CONSERVATIVENESS` | Conservativeness of schedule policy          | 1.0      |                                       |
+| `KV_CACHE_DTYPE`            | KV cache precision                           | "auto"   | "auto", "fp8_e5m2"                    |
+
+### Parallelism
+
+| Environment Variable     | Description                          | Default        | Options                              |
+| ------------------------ | ------------------------------------ | -------------- | ------------------------------------ |
+| `TENSOR_PARALLEL_SIZE`   | Tensor parallelism size              | 1              |                                      |
+| `DATA_PARALLEL_SIZE`     | Data parallelism size                | 1              |                                      |
+| `PIPELINE_PARALLEL_SIZE` | Pipeline parallelism size            | 1              |                                      |
+| `EXPERT_PARALLEL_SIZE`   | Expert parallelism size (MoE)        | 1              |                                      |
+| `LOAD_BALANCE_METHOD`    | Load balancing strategy              | "round_robin"  | "round_robin", "shortest_queue"      |
+
+### Speculative Decoding
+
+| Environment Variable              | Description                     | Default | Options                            |
+| --------------------------------- | ------------------------------- | ------- | ---------------------------------- |
+| `SPECULATIVE_ALGORITHM`           | Speculative decoding algorithm  |         | "EAGLE", "EAGLE3"                  |
+| `SPECULATIVE_DRAFT_MODEL_PATH`    | Draft model path                |         |                                    |
+| `SPECULATIVE_NUM_STEPS`           | Number of speculative steps     |         |                                    |
+| `SPECULATIVE_NUM_DRAFT_TOKENS`    | Number of draft tokens          |         |                                    |
+
+### LoRA
+
+| Environment Variable | Description                             | Default | Options |
+| -------------------- | --------------------------------------- | ------- | ------- |
+| `LORA_PATHS`         | Comma-separated LoRA adapter paths      |         |         |
+
+### Native Sparse Attention (NSA)
+
+| Environment Variable  | Description             | Default | Options               |
+| --------------------- | ----------------------- | ------- | --------------------- |
+| `NSA_PREFILL_BACKEND` | NSA prefill backend     |         | "trtllm"              |
+| `NSA_DECODE_BACKEND`  | NSA decode backend      |         | "trtllm"              |
+
+### Logging / Runtime
+
+| Environment Variable              | Description                                       | Default          | Options                                                 |
+| --------------------------------- | ------------------------------------------------- | ---------------- | ------------------------------------------------------- |
+| `STREAM_INTERVAL`                 | Streaming interval in token length                | 1                |                                                         |
+| `RANDOM_SEED`                     | Random seed                                       |                  |                                                         |
+| `LOG_LEVEL`                       | Logging level for all loggers                     | "info"           |                                                         |
+| `LOG_LEVEL_HTTP`                  | Logging level for HTTP server                     |                  |                                                         |
+| `API_KEY`                         | API key for the server                            |                  |                                                         |
+| `FILE_STORAGE_PATH`              | Directory for storing uploaded/generated files    | "sglang_storage" |                                                         |
+| `ATTENTION_BACKEND`              | Attention computation backend                     |                  | "flashinfer", "triton"                                  |
+| `SAMPLING_BACKEND`               | Sampling backend                                  |                  | "flashinfer", "pytorch"                                 |
+| `TOOL_CALL_PARSER`               | Parser for tool/function call responses           |                  | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"   |
+| `REASONING_PARSER`               | Parser for reasoning traces                       |                  | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"   |
+
+### Boolean Flags
+
+| Environment Variable              | Description                                       | Default |
+| --------------------------------- | ------------------------------------------------- | ------- |
+| `SKIP_TOKENIZER_INIT`            | Skip tokenizer init                               | false   |
+| `TRUST_REMOTE_CODE`              | Allow custom models from Hub                      | false   |
+| `LOG_REQUESTS`                   | Log inputs and outputs of requests                | false   |
+| `SHOW_TIME_COST`                 | Show time cost of custom marks                    | false   |
+| `DISABLE_RADIX_CACHE`            | Disable RadixAttention for prefix caching         | false   |
+| `DISABLE_CUDA_GRAPH`             | Disable CUDA Graph                                | false   |
+| `DISABLE_OUTLINES_DISK_CACHE`    | Disable disk cache for Outlines grammar           | false   |
+| `ENABLE_TORCH_COMPILE`           | Optimize model with torch.compile                 | false   |
+| `ENABLE_P2P_CHECK`               | Enable P2P check for GPU access                   | false   |
+| `ENABLE_FLASHINFER_MLA`          | Enable FlashInfer MLA optimization                | false   |
+| `TRITON_ATTENTION_REDUCE_IN_FP32`| Cast Triton attention reduce op to FP32           | false   |
+| `ENABLE_MIXED_CHUNK`             | Enable mixed chunk prefill                        | false   |
+| `ENABLE_OVERLAP`                 | Enable LoRA weight loading overlap                | false   |
+| `ENABLE_METRICS`                 | Enable Prometheus metrics endpoint                | false   |
+| `ENABLE_CACHE_REPORT`            | Enable cache hit rate reporting                   | false   |
+
+### Worker Settings
+
+| Environment Variable    | Description                         | Default |
+| ----------------------- | ----------------------------------- | ------- |
+| `MAX_CONCURRENCY`       | Max concurrent RunPod requests      | 300     |
+| `REQUEST_TIMEOUT`       | Total request timeout (seconds)     | 600     |
+| `STREAM_READ_TIMEOUT`   | Stream read timeout (seconds)       | 300     |
 
 ## Tool/Function Calling and Reasoning
 

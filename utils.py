@@ -1,26 +1,28 @@
 import json
 
 
-def format_chunk(chunk):
+def format_sse_chunk(chunk: str) -> str:
+    """Format a single SSE chunk for streaming responses."""
     chunk = chunk.strip()
-    if chunk.startswith('data: '):
-        chunk = chunk[6:]  # Remove 'data: ' prefix
-    
-    if chunk == '[DONE]':
-        return f"data: {chunk}\n\n"
-    
+
+    # Strip existing "data: " prefix if present
+    if chunk.startswith("data: "):
+        chunk = chunk[6:]
+
+    if chunk == "[DONE]":
+        return "data: [DONE]\n\n"
+
     try:
-        # Try to parse as JSON
+        # Validate JSON and re-serialize compactly (no pretty-print for perf)
         data = json.loads(chunk)
-        formatted_json = json.dumps(data, indent=4)
-        formatted_lines = [f"data: {line}" for line in formatted_json.split('\n')]
-        return '\n'.join(formatted_lines) + '\n\n'
+        return f"data: {json.dumps(data)}\n\n"
     except json.JSONDecodeError:
-        # If it's not valid JSON, return as plain text
         return f"data: {chunk}\n\n"
-    
-def process_response(response):
-    for line in response.iter_lines():
+
+
+async def async_process_stream(response):
+    """Process an aiohttp streaming response, yielding formatted SSE chunks."""
+    async for raw_line in response.content:
+        line = raw_line.decode("utf-8").strip()
         if line:
-            decoded_line = line.decode('utf-8')
-            yield format_chunk(decoded_line)
+            yield format_sse_chunk(line)
