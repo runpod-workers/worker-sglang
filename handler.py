@@ -94,8 +94,29 @@ async def async_handler(job):
                     if decoded:
                         yield decoded
 
-    # Case 3: assume user meant the native /generate endpoint.
-    else:
+    # Case 3: payload has "prompt" → route to /v1/completions (text completions).
+    elif "prompt" in job_input:
+        completions_url = f"{engine.base_url}/v1/completions"
+
+        if "model" not in job_input:
+            job_input["model"] = engine.model or "default"
+
+        is_stream = job_input.get("stream", False)
+
+        async with session.post(
+            completions_url, headers=headers, json=job_input
+        ) as resp:
+            if is_stream:
+                async for chunk in async_process_stream(resp):
+                    yield chunk
+            else:
+                async for line in resp.content:
+                    decoded = line.decode("utf-8").strip()
+                    if decoded:
+                        yield decoded
+
+    # Case 4: native /generate endpoint (requires "text", "input_ids", or "input_embeds").
+    elif any(k in job_input for k in ("text", "input_ids", "input_embeds")):
         generate_url = f"{engine.base_url}/generate"
 
         async with session.post(
@@ -108,6 +129,15 @@ async def async_handler(job):
                     "error": f"Generate request failed with status code {resp.status}",
                     "details": await resp.text(),
                 }
+
+    # No recognized input format
+    else:
+        yield {
+            "error": "Invalid input format. Provide one of: "
+                     "'messages' (chat), 'prompt' (completions), "
+                     "'text'/'input_ids' (generate), or 'openai_route' (raw).",
+            "received_keys": list(job_input.keys()),
+        }
 
 
 runpod.serverless.start(
