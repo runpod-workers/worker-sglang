@@ -26,3 +26,23 @@ async def async_process_stream(response):
         line = raw_line.decode("utf-8").strip()
         if line:
             yield format_sse_chunk(line)
+
+
+async def async_process_response(response, is_stream, route):
+    """Yield a successful OpenAI response or one structured upstream error."""
+    if not 200 <= response.status < 300:
+        yield {
+            "error": f"Request to {route} failed with status {response.status}",
+            "details": await response.text(),
+        }
+        return
+
+    if is_stream:
+        async for chunk in async_process_stream(response):
+            yield chunk
+        return
+
+    async for raw_line in response.content:
+        line = raw_line.decode("utf-8").strip()
+        if line:
+            yield line

@@ -2,7 +2,7 @@ import asyncio
 import aiohttp
 import json
 from engine import SGlangEngine
-from utils import async_process_stream
+from utils import async_process_response
 import runpod
 import os
 
@@ -63,14 +63,10 @@ async def async_handler(job):
         async with session.post(
             openai_url, headers=headers, json=openai_input
         ) as resp:
-            if is_stream:
-                async for chunk in async_process_stream(resp):
-                    yield chunk
-            else:
-                async for line in resp.content:
-                    decoded = line.decode("utf-8").strip()
-                    if decoded:
-                        yield decoded
+            async for result in async_process_response(
+                resp, is_stream, openai_route
+            ):
+                yield result
 
     # Case 2: payload looks like OpenAI chat/completions but omits the wrapper.
     elif "messages" in job_input:
@@ -85,14 +81,10 @@ async def async_handler(job):
         async with session.post(
             openai_url, headers=headers, json=job_input
         ) as resp:
-            if is_stream:
-                async for chunk in async_process_stream(resp):
-                    yield chunk
-            else:
-                async for line in resp.content:
-                    decoded = line.decode("utf-8").strip()
-                    if decoded:
-                        yield decoded
+            async for result in async_process_response(
+                resp, is_stream, "/v1/chat/completions"
+            ):
+                yield result
 
     # Case 3: payload has "prompt" → route to /v1/completions (text completions).
     elif "prompt" in job_input:
@@ -106,14 +98,10 @@ async def async_handler(job):
         async with session.post(
             completions_url, headers=headers, json=job_input
         ) as resp:
-            if is_stream:
-                async for chunk in async_process_stream(resp):
-                    yield chunk
-            else:
-                async for line in resp.content:
-                    decoded = line.decode("utf-8").strip()
-                    if decoded:
-                        yield decoded
+            async for result in async_process_response(
+                resp, is_stream, "/v1/completions"
+            ):
+                yield result
 
     # Case 4: native /generate endpoint (requires "text", "input_ids", or "input_embeds").
     elif any(k in job_input for k in ("text", "input_ids", "input_embeds")):
