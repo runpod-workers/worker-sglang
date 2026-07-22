@@ -9,7 +9,7 @@
     "containerDiskInGb": 100,
     "gpuIds": "ADA_24",
     "gpuCount": 1,
-    "allowedCudaVersions": ["12.9", "12.8", "12.7", "12.6"],
+    "allowedCudaVersions": ["13.0"],
     "env": [
       {
         "key": "MODEL_NAME",
@@ -415,13 +415,36 @@
         }
       },
       {
-        "key": "DISABLE_CUDA_GRAPH",
+        "key": "CUDA_GRAPH_BACKEND_DECODE",
         "input": {
-          "name": "Disable CUDA Graph",
-          "type": "boolean",
-          "description": "Disable cuda graph",
-          "default": false,
+          "name": "CUDA Graph Backend (Decode)",
+          "type": "string",
+          "description": "CUDA graph backend for decode",
+          "default": "",
           "required": false,
+          "options": [
+            { "value": "full", "label": "full" },
+            { "value": "breakable", "label": "breakable" },
+            { "value": "tc_piecewise", "label": "tc_piecewise" },
+            { "value": "disabled", "label": "disabled" }
+          ],
+          "advanced": true
+        }
+      },
+      {
+        "key": "CUDA_GRAPH_BACKEND_PREFILL",
+        "input": {
+          "name": "CUDA Graph Backend (Prefill)",
+          "type": "string",
+          "description": "CUDA graph backend for prefill",
+          "default": "",
+          "required": false,
+          "options": [
+            { "value": "full", "label": "full" },
+            { "value": "breakable", "label": "breakable" },
+            { "value": "tc_piecewise", "label": "tc_piecewise" },
+            { "value": "disabled", "label": "disabled" }
+          ],
           "advanced": true
         }
       },
@@ -459,11 +482,11 @@
         }
       },
       {
-        "key": "ENABLE_FLASHINFER_MLA",
+        "key": "ENABLE_DP_ATTENTION",
         "input": {
-          "name": "Enable FlashInfer MLA",
+          "name": "Enable DP Attention",
           "type": "boolean",
-          "description": "Enable FlashInfer Multi-head Latent Attention",
+          "description": "Enable data-parallel attention",
           "default": false,
           "required": false,
           "advanced": true

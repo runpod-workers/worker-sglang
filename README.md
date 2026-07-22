@@ -1,6 +1,10 @@
 ![SGLang worker banner](https://cpjrphpz3t5wbwfe.public.blob.vercel-storage.com/worker-sglang_banner-A9R2vQzvSUmLvqMZ8MzehfZtRDxHJR.jpeg)
 
-Run LLMs and VLMs using [SGLang](https://docs.sglang.ai) (v0.5.9+)
+Run LLMs and VLMs using [SGLang](https://docs.sglang.ai) v0.5.15.post1.
+
+This worker pins the official CUDA 13.0 images and targets NVIDIA H100 and H200
+GPUs. Both the full and runtime-optimized builds use reproducible versioned
+base images.
 
 ---
 
@@ -58,6 +62,7 @@ All behaviour is controlled through environment variables:
 | `SPECULATIVE_ALGORITHM`           | Speculative decoding algorithm  |         | "EAGLE", "EAGLE3"                  |
 | `SPECULATIVE_DRAFT_MODEL_PATH`    | Draft model path                |         |                                    |
 | `SPECULATIVE_NUM_STEPS`           | Number of speculative steps     |         |                                    |
+| `SPECULATIVE_EAGLE_TOPK`          | EAGLE candidates per step       |         |                                    |
 | `SPECULATIVE_NUM_DRAFT_TOKENS`    | Number of draft tokens          |         |                                    |
 
 ### LoRA
@@ -66,12 +71,12 @@ All behaviour is controlled through environment variables:
 | -------------------- | --------------------------------------- | ------- | ------- |
 | `LORA_PATHS`         | Comma-separated LoRA adapter paths      |         |         |
 
-### Native Sparse Attention (NSA)
+### DeepSeek Sparse Attention (DSA)
 
 | Environment Variable  | Description             | Default | Options               |
 | --------------------- | ----------------------- | ------- | --------------------- |
-| `NSA_PREFILL_BACKEND` | NSA prefill backend     |         | "trtllm"              |
-| `NSA_DECODE_BACKEND`  | NSA decode backend      |         | "trtllm"              |
+| `DSA_PREFILL_BACKEND` | DSA prefill backend     |         | Model-dependent       |
+| `DSA_DECODE_BACKEND`  | DSA decode backend      |         | Model-dependent       |
 
 ### Logging / Runtime
 
@@ -84,7 +89,13 @@ All behaviour is controlled through environment variables:
 | `API_KEY`                         | API key for the server                            |                  |                                                         |
 | `FILE_STORAGE_PATH`              | Directory for storing uploaded/generated files    | "sglang_storage" |                                                         |
 | `ATTENTION_BACKEND`              | Attention computation backend                     |                  | "flashinfer", "triton"                                  |
+| `PREFILL_ATTENTION_BACKEND`      | Prefill attention backend override                |                  | Model-dependent                                         |
+| `DECODE_ATTENTION_BACKEND`       | Decode attention backend override                 |                  | Model-dependent                                         |
 | `SAMPLING_BACKEND`               | Sampling backend                                  |                  | "flashinfer", "pytorch"                                 |
+| `MOE_RUNNER_BACKEND`             | MoE kernel runner backend                         |                  | Model-dependent                                         |
+| `MOE_A2A_BACKEND`                | MoE all-to-all backend                            | "none"           | Model-dependent                                         |
+| `CUDA_GRAPH_BACKEND_DECODE`      | CUDA Graph backend for decode                     |                  | "full", "breakable", "tc_piecewise", "disabled"       |
+| `CUDA_GRAPH_BACKEND_PREFILL`     | CUDA Graph backend for prefill                    |                  | "full", "breakable", "tc_piecewise", "disabled"       |
 | `TOOL_CALL_PARSER`               | Parser for tool/function call responses           |                  | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"   |
 | `REASONING_PARSER`               | Parser for reasoning traces                       |                  | "llama3", "llama4", "mistral", "qwen25", "deepseekv3"   |
 
@@ -97,14 +108,13 @@ All behaviour is controlled through environment variables:
 | `LOG_REQUESTS`                   | Log inputs and outputs of requests                | false   |
 | `SHOW_TIME_COST`                 | Show time cost of custom marks                    | false   |
 | `DISABLE_RADIX_CACHE`            | Disable RadixAttention for prefix caching         | false   |
-| `DISABLE_CUDA_GRAPH`             | Disable CUDA Graph                                | false   |
 | `DISABLE_OUTLINES_DISK_CACHE`    | Disable disk cache for Outlines grammar           | false   |
 | `ENABLE_TORCH_COMPILE`           | Optimize model with torch.compile                 | false   |
 | `ENABLE_P2P_CHECK`               | Enable P2P check for GPU access                   | false   |
-| `ENABLE_FLASHINFER_MLA`          | Enable FlashInfer MLA optimization                | false   |
 | `TRITON_ATTENTION_REDUCE_IN_FP32`| Cast Triton attention reduce op to FP32           | false   |
 | `ENABLE_MIXED_CHUNK`             | Enable mixed chunk prefill                        | false   |
-| `ENABLE_OVERLAP`                 | Enable LoRA weight loading overlap                | false   |
+| `DISABLE_OVERLAP_SCHEDULE`       | Disable scheduler overlap                         | false   |
+| `ENABLE_DP_ATTENTION`            | Enable data-parallel attention                    | false   |
 | `ENABLE_METRICS`                 | Enable Prometheus metrics endpoint                | false   |
 | `ENABLE_CACHE_REPORT`            | Enable cache hit rate reporting                   | false   |
 
@@ -118,12 +128,15 @@ All behaviour is controlled through environment variables:
 
 ## Tool/Function Calling and Reasoning
 
-- **Tool/Function calling**: Set the `TOOL_CALL_PARSER` environment variable to match your model family. Supported values: `llama3`, `llama4`, `mistral`, `qwen25`, `deepseekv3`. If unset, this worker does not pass `--tool-call-parser` to SGLang.
+- **Tool/Function calling**: Set `TOOL_CALL_PARSER` to `auto` or a parser
+  supported by the pinned SGLang release. If unset, the worker does not pass a
+  parser override.
 
   - Example (docker-compose): add `TOOL_CALL_PARSER=llama3` under `environment:`.
   - Example (RunPod Hub): set the `TOOL_CALL_PARSER` env var in the UI.
 
-- **Reasoning**: Set the `REASONING_PARSER` environment variable to match your model family if you want to enable reasoning traces parsing. If unset, this worker does not pass `--reasoning-parser` to SGLang.
+- **Reasoning**: Set `REASONING_PARSER` to `auto` or a parser supported by the
+  pinned SGLang release. If unset, the worker does not pass a parser override.
   - Example (docker-compose): add `# REASONING_PARSER=llama3` under `environment:` (uncomment to use).
   - Example (RunPod Hub): set the `REASONING_PARSER` env var in the UI.
 
@@ -305,4 +318,7 @@ for response in response_stream:
 
 ## Compatibility
 
-Anything not recognized by worker-sglang is forwarded verbatim to `/generate`, so advanced options in the SGLang docs (logprobs, sessions, images, etc.) also work.
+Recognized native-generation payloads are forwarded verbatim to `/generate`,
+so supported SGLang sampling, logprob, session, and multimodal fields remain
+available. Payloads without a recognized request shape return a structured
+validation error.

@@ -76,31 +76,66 @@ TESTS = {
 }
 
 
-def run_test(base_url: str, headers: dict, name: str, payload: dict):
+def run_test(
+    base_url: str,
+    headers: dict,
+    name: str,
+    payload: dict,
+    timeout: float = 1800,
+    poll_interval: float = 2,
+    request_timeout: float = 30,
+):
     print(f"\n{'='*60}")
     print(f"🧪 Test: {name}")
     print(f"{'='*60}")
     print(f"Payload: {json.dumps(payload, indent=2, ensure_ascii=False)}\n")
 
     # Submit job via /run
-    resp = requests.post(f"{base_url}/run", headers=headers, json=payload)
+    try:
+        resp = requests.post(
+            f"{base_url}/run",
+            headers=headers,
+            json=payload,
+            timeout=request_timeout,
+        )
+    except requests.RequestException as error:
+        print(f"❌ Submit failed: {error}")
+        return False
     if resp.status_code != 200:
         print(f"❌ Submit failed: {resp.status_code} {resp.text}")
         return False
 
     job = resp.json()
     job_id = job.get("id")
+    if not job_id:
+        print(f"❌ Submit response did not contain a job ID: {job}")
+        return False
     print(f"📤 Job submitted: {job_id}")
 
     # Poll /status until complete
-    start = time.time()
-    while True:
-        status_resp = requests.get(f"{base_url}/status/{job_id}", headers=headers)
+    start = time.monotonic()
+    deadline = start + timeout
+    while time.monotonic() < deadline:
+        try:
+            status_resp = requests.get(
+                f"{base_url}/status/{job_id}",
+                headers=headers,
+                timeout=request_timeout,
+            )
+        except requests.RequestException as error:
+            print(f"❌ Status request failed: {error}")
+            return False
+        if status_resp.status_code != 200:
+            print(
+                f"❌ Status request failed: "
+                f"{status_resp.status_code} {status_resp.text}"
+            )
+            return False
         status_data = status_resp.json()
         status = status_data.get("status")
 
         if status == "COMPLETED":
-            elapsed = time.time() - start
+            elapsed = time.monotonic() - start
             output = status_data.get("output")
             print(f"✅ Completed in {elapsed:.1f}s")
             print(f"Output: {json.dumps(output, indent=2, ensure_ascii=False)[:1000]}")
@@ -109,12 +144,15 @@ def run_test(base_url: str, headers: dict, name: str, payload: dict):
             print(f"❌ Failed: {status_data.get('error', 'unknown')}")
             return False
         elif status in ("IN_QUEUE", "IN_PROGRESS"):
-            elapsed = time.time() - start
+            elapsed = time.monotonic() - start
             print(f"   ⏳ {status} ({elapsed:.0f}s)...", end="\r")
-            time.sleep(2)
+            time.sleep(poll_interval)
         else:
             print(f"❓ Unknown status: {status}")
             return False
+
+    print(f"❌ Timed out after {timeout:.0f}s waiting for job {job_id}")
+    return False
 
 
 def main():
@@ -126,6 +164,24 @@ def main():
         default="chat",
         choices=list(TESTS.keys()) + ["all"],
         help="Which test to run (default: chat)",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=float,
+        default=1800,
+        help="Maximum seconds to wait for each job (default: 1800)",
+    )
+    parser.add_argument(
+        "--poll-interval",
+        type=float,
+        default=2,
+        help="Seconds between job status polls (default: 2)",
+    )
+    parser.add_argument(
+        "--request-timeout",
+        type=float,
+        default=30,
+        help="HTTP request timeout in seconds (default: 30)",
     )
     args = parser.parse_args()
 
@@ -139,7 +195,15 @@ def main():
 
     results = {}
     for name, payload in tests_to_run.items():
-        results[name] = run_test(base_url, headers, name, payload)
+        results[name] = run_test(
+            base_url,
+            headers,
+            name,
+            payload,
+            timeout=args.timeout,
+            poll_interval=args.poll_interval,
+            request_timeout=args.request_timeout,
+        )
 
     # Summary
     print(f"\n{'='*60}")
@@ -149,6 +213,8 @@ def main():
         icon = "✅" if passed else "❌"
         print(f"  {icon} {name}")
 
+    return 0 if all(results.values()) else 1
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
