@@ -1,24 +1,100 @@
-import subprocess
-import signal
-import time
-import requests
 import os
+import signal
+import subprocess
+import time
+
+import requests
+
+
+VALUE_OPTIONS = {
+    # Model / tokenizer
+    "MODEL_NAME": "--model-path",
+    "TOKENIZER_PATH": "--tokenizer-path",
+    "TOKENIZER_MODE": "--tokenizer-mode",
+    "LOAD_FORMAT": "--load-format",
+    "DTYPE": "--dtype",
+    "CONTEXT_LENGTH": "--context-length",
+    "QUANTIZATION": "--quantization",
+    "SERVED_MODEL_NAME": "--served-model-name",
+    "CHAT_TEMPLATE": "--chat-template",
+    "JSON_MODEL_OVERRIDE_ARGS": "--json-model-override-args",
+    # Memory / scheduling
+    "MEM_FRACTION_STATIC": "--mem-fraction-static",
+    "MAX_RUNNING_REQUESTS": "--max-running-requests",
+    "MAX_TOTAL_TOKENS": "--max-total-tokens",
+    "CHUNKED_PREFILL_SIZE": "--chunked-prefill-size",
+    "MAX_PREFILL_TOKENS": "--max-prefill-tokens",
+    "SCHEDULE_POLICY": "--schedule-policy",
+    "SCHEDULE_CONSERVATIVENESS": "--schedule-conservativeness",
+    "KV_CACHE_DTYPE": "--kv-cache-dtype",
+    # Parallelism
+    "TENSOR_PARALLEL_SIZE": "--tp-size",
+    "DATA_PARALLEL_SIZE": "--dp-size",
+    "PIPELINE_PARALLEL_SIZE": "--pp-size",
+    "EXPERT_PARALLEL_SIZE": "--ep-size",
+    "LOAD_BALANCE_METHOD": "--load-balance-method",
+    # Speculative decoding
+    "SPECULATIVE_ALGORITHM": "--speculative-algorithm",
+    "SPECULATIVE_DRAFT_MODEL_PATH": "--speculative-draft-model-path",
+    "SPECULATIVE_NUM_STEPS": "--speculative-num-steps",
+    "SPECULATIVE_EAGLE_TOPK": "--speculative-eagle-topk",
+    "SPECULATIVE_NUM_DRAFT_TOKENS": "--speculative-num-draft-tokens",
+    # DSA (DeepSeek Sparse Attention)
+    "DSA_PREFILL_BACKEND": "--dsa-prefill-backend",
+    "DSA_DECODE_BACKEND": "--dsa-decode-backend",
+    # Logging / backends / misc
+    "STREAM_INTERVAL": "--stream-interval",
+    "RANDOM_SEED": "--random-seed",
+    "LOG_LEVEL": "--log-level",
+    "LOG_LEVEL_HTTP": "--log-level-http",
+    "API_KEY": "--api-key",
+    "FILE_STORAGE_PATH": "--file-storage-path",
+    "ATTENTION_BACKEND": "--attention-backend",
+    "PREFILL_ATTENTION_BACKEND": "--prefill-attention-backend",
+    "DECODE_ATTENTION_BACKEND": "--decode-attention-backend",
+    "SAMPLING_BACKEND": "--sampling-backend",
+    "MOE_RUNNER_BACKEND": "--moe-runner-backend",
+    "MOE_A2A_BACKEND": "--moe-a2a-backend",
+    "CUDA_GRAPH_BACKEND_DECODE": "--cuda-graph-backend-decode",
+    "CUDA_GRAPH_BACKEND_PREFILL": "--cuda-graph-backend-prefill",
+    "TOOL_CALL_PARSER": "--tool-call-parser",
+    "REASONING_PARSER": "--reasoning-parser",
+}
+
+
+BOOLEAN_OPTIONS = {
+    "SKIP_TOKENIZER_INIT": "--skip-tokenizer-init",
+    "TRUST_REMOTE_CODE": "--trust-remote-code",
+    "LOG_REQUESTS": "--log-requests",
+    "SHOW_TIME_COST": "--show-time-cost",
+    "DISABLE_RADIX_CACHE": "--disable-radix-cache",
+    "DISABLE_OUTLINES_DISK_CACHE": "--disable-outlines-disk-cache",
+    "ENABLE_TORCH_COMPILE": "--enable-torch-compile",
+    "ENABLE_P2P_CHECK": "--enable-p2p-check",
+    "TRITON_ATTENTION_REDUCE_IN_FP32": "--triton-attention-reduce-in-fp32",
+    "ENABLE_MIXED_CHUNK": "--enable-mixed-chunk",
+    "DISABLE_OVERLAP_SCHEDULE": "--disable-overlap-schedule",
+    "ENABLE_DP_ATTENTION": "--enable-dp-attention",
+    "ENABLE_METRICS": "--enable-metrics",
+    "ENABLE_CACHE_REPORT": "--enable-cache-report",
+}
+
+
+TRUE_VALUES = {"true", "1", "yes"}
 
 
 class SGlangEngine:
-    def __init__(
-        self,
-        model=os.getenv("MODEL_NAME"),
-        host=os.getenv("HOST", "0.0.0.0"),
-        port=int(os.getenv("PORT", 30000)),
-    ):
-        self.model = model
-        self.host = host
-        self.port = port
+    def __init__(self, model=None, host=None, port=None, env=None):
+        self.env = os.environ if env is None else env
+        self.model = model if model is not None else self.env.get("MODEL_NAME")
+        self.host = host if host is not None else self.env.get("HOST", "0.0.0.0")
+        port_value = port if port is not None else self.env.get("PORT", 30000)
+        self.port = int(port_value)
         self.base_url = f"http://{self.host}:{self.port}"
         self.process = None
 
-    def start_server(self):
+    def build_command(self):
+        """Build an argv list for the SGLang v0.5.15 server."""
         command = [
             "python3",
             "-m",
@@ -29,92 +105,25 @@ class SGlangEngine:
             str(self.port),
         ]
 
-        # Dictionary of all possible options and their corresponding env var names
-        options = {
-            # ── Model / Tokenizer ──
-            "MODEL_NAME": "--model-path",
-            "TOKENIZER_PATH": "--tokenizer-path",
-            "TOKENIZER_MODE": "--tokenizer-mode",
-            "LOAD_FORMAT": "--load-format",
-            "DTYPE": "--dtype",
-            "CONTEXT_LENGTH": "--context-length",
-            "QUANTIZATION": "--quantization",
-            "SERVED_MODEL_NAME": "--served-model-name",
-            "CHAT_TEMPLATE": "--chat-template",
-            "JSON_MODEL_OVERRIDE_ARGS": "--json-model-override-args",
-            # ── Memory / Scheduling ──
-            "MEM_FRACTION_STATIC": "--mem-fraction-static",
-            "MAX_RUNNING_REQUESTS": "--max-running-requests",
-            "MAX_TOTAL_TOKENS": "--max-total-tokens",
-            "CHUNKED_PREFILL_SIZE": "--chunked-prefill-size",
-            "MAX_PREFILL_TOKENS": "--max-prefill-tokens",
-            "SCHEDULE_POLICY": "--schedule-policy",
-            "SCHEDULE_CONSERVATIVENESS": "--schedule-conservativeness",
-            "KV_CACHE_DTYPE": "--kv-cache-dtype",
-            # ── Parallelism ──
-            "TENSOR_PARALLEL_SIZE": "--tensor-parallel-size",
-            "DATA_PARALLEL_SIZE": "--data-parallel-size",
-            "PIPELINE_PARALLEL_SIZE": "--pipeline-parallel-size",
-            "EXPERT_PARALLEL_SIZE": "--expert-parallel-size",
-            "LOAD_BALANCE_METHOD": "--load-balance-method",
-            # ── Speculative Decoding ──
-            "SPECULATIVE_ALGORITHM": "--speculative-algorithm",
-            "SPECULATIVE_DRAFT_MODEL_PATH": "--speculative-draft-model-path",
-            "SPECULATIVE_NUM_STEPS": "--speculative-num-steps",
-            "SPECULATIVE_NUM_DRAFT_TOKENS": "--speculative-num-draft-tokens",
-            # ── LoRA ──
-            "LORA_PATHS": "--lora-paths",
-            # ── NSA (Native Sparse Attention) ──
-            "NSA_PREFILL_BACKEND": "--nsa-prefill-backend",
-            "NSA_DECODE_BACKEND": "--nsa-decode-backend",
-            # ── Logging / Misc ──
-            "STREAM_INTERVAL": "--stream-interval",
-            "RANDOM_SEED": "--random-seed",
-            "LOG_LEVEL": "--log-level",
-            "LOG_LEVEL_HTTP": "--log-level-http",
-            "API_KEY": "--api-key",
-            "FILE_STORAGE_PATH": "--file-storage-path",
-            "ATTENTION_BACKEND": "--attention-backend",
-            "SAMPLING_BACKEND": "--sampling-backend",
-            "TOOL_CALL_PARSER": "--tool-call-parser",
-            "REASONING_PARSER": "--reasoning-parser",
-        }
+        for env_var, option in VALUE_OPTIONS.items():
+            value = self.env.get(env_var)
+            if value not in (None, ""):
+                command.extend([option, str(value)])
 
-        # Boolean flags
-        boolean_flags = [
-            "SKIP_TOKENIZER_INIT",
-            "TRUST_REMOTE_CODE",
-            "LOG_REQUESTS",
-            "SHOW_TIME_COST",
-            "DISABLE_RADIX_CACHE",
-            "DISABLE_CUDA_GRAPH",
-            "DISABLE_OUTLINES_DISK_CACHE",
-            "ENABLE_TORCH_COMPILE",
-            "ENABLE_P2P_CHECK",
-            "ENABLE_FLASHINFER_MLA",
-            "TRITON_ATTENTION_REDUCE_IN_FP32",
-            "ENABLE_MIXED_CHUNK",
-            "ENABLE_OVERLAP",
-            "ENABLE_METRICS",
-            "ENABLE_CACHE_REPORT",
-        ]
+        lora_paths = self.env.get("LORA_PATHS", "")
+        parsed_lora_paths = [path.strip() for path in lora_paths.split(",") if path.strip()]
+        if parsed_lora_paths:
+            command.append("--lora-paths")
+            command.extend(parsed_lora_paths)
 
-        # Add options from environment variables only if they are set
-        for env_var, option in options.items():
-            value = os.getenv(env_var)
-            if value is not None and value != "":
-                # LORA_PATHS may contain comma-separated paths — split them
-                if env_var == "LORA_PATHS":
-                    for lora_path in value.split(","):
-                        command.extend([option, lora_path.strip()])
-                else:
-                    command.extend([option, value])
+        for env_var, option in BOOLEAN_OPTIONS.items():
+            if self.env.get(env_var, "").lower() in TRUE_VALUES:
+                command.append(option)
 
-        # Add boolean flags only if they are set to true
-        for flag in boolean_flags:
-            if os.getenv(flag, "").lower() in ("true", "1", "yes"):
-                command.append(f"--{flag.lower().replace('_', '-')}")
+        return command
 
+    def start_server(self):
+        command = self.build_command()
         print(f"[engine] Starting SGLang server: {' '.join(command)}")
         self.process = subprocess.Popen(command, stdout=None, stderr=None)
         print(f"[engine] Server started with PID: {self.process.pid}")
