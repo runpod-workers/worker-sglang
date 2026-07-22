@@ -1,4 +1,5 @@
-FROM lmsysorg/sglang:latest
+ARG BASE_IMAGE="lmsysorg/sglang:v0.5.15.post1"
+FROM ${BASE_IMAGE}
 
 # Set working directory to the one already used by the base image
 WORKDIR /sgl-workspace

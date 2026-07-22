@@ -47,7 +47,8 @@ services:
       - CHUNKED_PREFILL_SIZE=512
       - MAX_PREFILL_TOKENS=2048
       - MAX_TOTAL_TOKENS=2048
-      - DISABLE_CUDA_GRAPH=true
+      - CUDA_GRAPH_BACKEND_DECODE=disabled
+      - CUDA_GRAPH_BACKEND_PREFILL=disabled
       - CONTEXT_LENGTH=2048
 
     ports:
