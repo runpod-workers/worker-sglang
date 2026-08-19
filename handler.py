@@ -1,4 +1,3 @@
-import asyncio
 import requests
 from engine import SGlangEngine
 from utils import process_response
@@ -14,7 +13,6 @@ engine.wait_for_server()
 def get_max_concurrency(default=300):
     """
     Returns the maximum concurrency value.
-    By default, it uses 50 unless the 'MAX_CONCURRENCY' environment variable is set.
 
     Args:
         default (int): The default concurrency value if the environment variable is not set.
@@ -25,67 +23,59 @@ def get_max_concurrency(default=300):
     return int(os.getenv("MAX_CONCURRENCY", default))
 
 
-async def async_handler(job):
-    """Handle the requests asynchronously."""
-    job_input = job["input"]
+def _error(message):
+    return {"error": {"message": message, "type": "worker_error", "code": None}}
 
-    # Case 1: full OpenAI style payload where caller already specifies the route.
+
+def _resolve_request(job_input):
+    """Return (route, method, body) for any accepted job input shape."""
+    # Case 1: full OpenAI style payload where the caller specifies the route.
     if job_input.get("openai_route"):
-        openai_route = job_input["openai_route"]
-        openai_input = job_input.get("openai_input") or {}
-
-        openai_url = f"{engine.base_url}" + openai_route
-        headers = {"Content-Type": "application/json"}
-
+        body = job_input.get("openai_input")
         # Read-only routes such as /v1/models carry no body and are GET-only.
-        if openai_input:
-            response = requests.post(openai_url, headers=headers, json=openai_input)
-        else:
-            response = requests.get(openai_url, headers=headers)
+        return job_input["openai_route"], ("POST" if body else "GET"), body
 
-        # Process the streamed response
-        if openai_input.get("stream", False):
-            for formated_chunk in process_response(response):
-                yield formated_chunk
-        else:
-            for chunk in response.iter_lines():
-                if chunk:
-                    decoded_chunk = chunk.decode("utf-8")
-                    yield decoded_chunk
+    # Case 2: looks like OpenAI chat/completions but omits the wrapper.
+    if "messages" in job_input:
+        body = dict(job_input)
+        body.setdefault("model", engine.model or "default")
+        return "/v1/chat/completions", "POST", body
 
-    # Case 2: payload looks like OpenAI chat/completions but omits the wrapper.
-    elif "messages" in job_input:
-        openai_url = f"{engine.base_url}/v1/chat/completions"
-        headers = {"Content-Type": "application/json"}
+    # Case 3: anything else goes to SGLang's native endpoint verbatim.
+    return "/generate", "POST", job_input
 
-        # Make sure model is set; fall back to default.
-        if "model" not in job_input:
-            job_input["model"] = engine.model or "default"
 
-        response = requests.post(openai_url, headers=headers, json=job_input)
+async def async_handler(job):
+    """Proxy the job to the local SGLang server."""
+    job_input = job["input"]
+    route, method, body = _resolve_request(job_input)
+    wants_stream = isinstance(body, dict) and bool(body.get("stream", False))
 
-        if job_input.get("stream", False):
-            for formated_chunk in process_response(response):
-                yield formated_chunk
-        else:
-            for chunk in response.iter_lines():
-                if chunk:
-                    yield chunk.decode("utf-8")
+    try:
+        response = requests.request(
+            method,
+            f"{engine.base_url}{route}",
+            headers={"Content-Type": "application/json"},
+            json=body,
+            stream=wants_stream,
+        )
+    except requests.RequestException as e:
+        yield _error(f"Request to SGLang failed: {e}")
+        return
 
-    # Case 3: assume user meant the native /generate endpoint.
+    # Surface upstream failures instead of passing the error body off as output.
+    if response.status_code >= 400:
+        yield _error(f"SGLang returned HTTP {response.status_code}: {response.text}")
+        return
+
+    if wants_stream:
+        for formatted_chunk in process_response(response):
+            yield formatted_chunk
     else:
-        generate_url = f"{engine.base_url}/generate"
-        headers = {"Content-Type": "application/json"}
-        # Directly pass `job_input` to `json`. Can we tell users the possible fields of `job_input`?
-        response = requests.post(generate_url, json=job_input, headers=headers)
-
-        if response.status_code == 200:
-            yield response.json()
-        else:
-            yield {
-                "error": f"Generate request failed with status code {response.status_code}",
-                "details": response.text,
-            }
+        # Yield the parsed object, not raw text: the platform's /openai/v1
+        # passthrough returns what the handler yields, and a JSON string there
+        # is not something an OpenAI client can parse.
+        yield response.json()
 
 
 runpod.serverless.start(
