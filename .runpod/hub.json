@@ -21,6 +21,16 @@
         }
       },
       {
+        "key": "HF_TOKEN",
+        "input": {
+          "name": "Hugging Face Token",
+          "type": "string",
+          "description": "Hugging Face access token, required for gated and private models",
+          "default": "",
+          "required": false
+        }
+      },
+      {
         "key": "TOOL_CALL_PARSER",
         "input": {
           "name": "Tool Call Parser",
@@ -31,10 +41,16 @@
           "advanced": true,
           "options": [
             { "value": "llama3", "label": "llama3" },
-            { "value": "llama4", "label": "llama4" },
-            { "value": "mistral", "label": "mistral" },
             { "value": "qwen25", "label": "qwen25" },
-            { "value": "deepseekv3", "label": "deepseekv3" }
+            { "value": "mistral", "label": "mistral" },
+            { "value": "deepseekv3", "label": "deepseekv3" },
+            { "value": "deepseekv31", "label": "deepseekv31" },
+            { "value": "pythonic", "label": "pythonic" },
+            { "value": "kimi_k2", "label": "kimi_k2" },
+            { "value": "qwen3_coder", "label": "qwen3_coder" },
+            { "value": "glm45", "label": "glm45" },
+            { "value": "step3", "label": "step3" },
+            { "value": "gpt-oss", "label": "gpt-oss" }
           ]
         }
       },
@@ -48,11 +64,14 @@
           "required": false,
           "advanced": true,
           "options": [
-            { "value": "llama3", "label": "llama3" },
-            { "value": "llama4", "label": "llama4" },
-            { "value": "mistral", "label": "mistral" },
-            { "value": "qwen25", "label": "qwen25" },
-            { "value": "deepseekv3", "label": "deepseekv3" }
+            { "value": "deepseek-r1", "label": "deepseek-r1" },
+            { "value": "deepseek-v3", "label": "deepseek-v3" },
+            { "value": "glm45", "label": "glm45" },
+            { "value": "gpt-oss", "label": "gpt-oss" },
+            { "value": "kimi", "label": "kimi" },
+            { "value": "qwen3", "label": "qwen3" },
+            { "value": "qwen3-thinking", "label": "qwen3-thinking" },
+            { "value": "step3", "label": "step3" }
           ]
         }
       },
