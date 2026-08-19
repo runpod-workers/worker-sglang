@@ -7,9 +7,9 @@
   "config": {
     "runsOn": "GPU",
     "containerDiskInGb": 100,
-    "gpuIds": "ADA_24",
+    "gpuIds": "ADA_24,AMPERE_24,ADA_32_PRO,ADA_48_PRO,AMPERE_48,ADA_80_PRO,AMPERE_80",
     "gpuCount": 1,
-    "allowedCudaVersions": ["12.9", "12.8", "12.7", "12.6"],
+    "allowedCudaVersions": ["13.0", "12.9"],
     "env": [
       {
         "key": "MODEL_NAME",
@@ -40,17 +40,39 @@
           "required": false,
           "advanced": true,
           "options": [
-            { "value": "llama3", "label": "llama3" },
-            { "value": "qwen25", "label": "qwen25" },
-            { "value": "mistral", "label": "mistral" },
+            { "value": "apertus2509", "label": "apertus2509" },
+            { "value": "cohere_command4", "label": "cohere_command4" },
             { "value": "deepseekv3", "label": "deepseekv3" },
             { "value": "deepseekv31", "label": "deepseekv31" },
-            { "value": "pythonic", "label": "pythonic" },
-            { "value": "kimi_k2", "label": "kimi_k2" },
-            { "value": "qwen3_coder", "label": "qwen3_coder" },
+            { "value": "deepseekv32", "label": "deepseekv32" },
+            { "value": "deepseekv4", "label": "deepseekv4" },
+            { "value": "gemma4", "label": "gemma4" },
+            { "value": "gigachat3", "label": "gigachat3" },
+            { "value": "glm", "label": "glm" },
             { "value": "glm45", "label": "glm45" },
+            { "value": "glm47", "label": "glm47" },
+            { "value": "gpt-oss", "label": "gpt-oss" },
+            { "value": "hermes", "label": "hermes" },
+            { "value": "hunyuan", "label": "hunyuan" },
+            { "value": "inkling", "label": "inkling" },
+            { "value": "interns1", "label": "interns1" },
+            { "value": "kimi_k2", "label": "kimi_k2" },
+            { "value": "kimi_k3", "label": "kimi_k3" },
+            { "value": "lfm2", "label": "lfm2" },
+            { "value": "llama3", "label": "llama3" },
+            { "value": "mimo", "label": "mimo" },
+            { "value": "minicpm5", "label": "minicpm5" },
+            { "value": "minimax-m2", "label": "minimax-m2" },
+            { "value": "minimax-m3", "label": "minimax-m3" },
+            { "value": "mistral", "label": "mistral" },
+            { "value": "poolside_v1", "label": "poolside_v1" },
+            { "value": "pythonic", "label": "pythonic" },
+            { "value": "qwen", "label": "qwen" },
+            { "value": "qwen25", "label": "qwen25" },
+            { "value": "qwen3_coder", "label": "qwen3_coder" },
             { "value": "step3", "label": "step3" },
-            { "value": "gpt-oss", "label": "gpt-oss" }
+            { "value": "step3p5", "label": "step3p5" },
+            { "value": "trinity", "label": "trinity" }
           ]
         }
       },
@@ -64,14 +86,34 @@
           "required": false,
           "advanced": true,
           "options": [
+            { "value": "apertus2509", "label": "apertus2509" },
+            { "value": "cohere_command4", "label": "cohere_command4" },
             { "value": "deepseek-r1", "label": "deepseek-r1" },
             { "value": "deepseek-v3", "label": "deepseek-v3" },
+            { "value": "deepseek-v4", "label": "deepseek-v4" },
+            { "value": "gemma4", "label": "gemma4" },
             { "value": "glm45", "label": "glm45" },
             { "value": "gpt-oss", "label": "gpt-oss" },
+            { "value": "hunyuan", "label": "hunyuan" },
+            { "value": "inkling", "label": "inkling" },
+            { "value": "interns1", "label": "interns1" },
             { "value": "kimi", "label": "kimi" },
+            { "value": "kimi_k2", "label": "kimi_k2" },
+            { "value": "kimi_k3", "label": "kimi_k3" },
+            { "value": "mimo", "label": "mimo" },
+            { "value": "minimax", "label": "minimax" },
+            {
+              "value": "minimax-append-think",
+              "label": "minimax-append-think"
+            },
+            { "value": "minimax-m3", "label": "minimax-m3" },
+            { "value": "mistral", "label": "mistral" },
+            { "value": "nemotron_3", "label": "nemotron_3" },
+            { "value": "poolside_v1", "label": "poolside_v1" },
             { "value": "qwen3", "label": "qwen3" },
             { "value": "qwen3-thinking", "label": "qwen3-thinking" },
-            { "value": "step3", "label": "step3" }
+            { "value": "step3", "label": "step3" },
+            { "value": "step3p5", "label": "step3p5" }
           ]
         }
       },
@@ -158,14 +200,20 @@
           "default": "",
           "required": false,
           "options": [
-            { "value": "awq", "label": "AWQ" },
-            { "value": "fp8", "label": "FP8" },
-            { "value": "gptq", "label": "GPTQ" },
-            { "value": "marlin", "label": "Marlin" },
-            { "value": "gptq_marlin", "label": "GPTQ Marlin" },
-            { "value": "awq_marlin", "label": "AWQ Marlin" },
-            { "value": "squeezellm", "label": "SqueezeLLM" },
-            { "value": "bitsandbytes", "label": "BitsAndBytes" }
+            { "value": "awq", "label": "awq" },
+            { "value": "awq_marlin", "label": "awq_marlin" },
+            { "value": "bitsandbytes", "label": "bitsandbytes" },
+            { "value": "compressed-tensors", "label": "compressed-tensors" },
+            { "value": "fp8", "label": "fp8" },
+            { "value": "gguf", "label": "gguf" },
+            { "value": "gptq", "label": "gptq" },
+            { "value": "gptq_marlin", "label": "gptq_marlin" },
+            { "value": "marlin", "label": "marlin" },
+            { "value": "modelopt_fp4", "label": "modelopt_fp4" },
+            { "value": "modelopt_fp8", "label": "modelopt_fp8" },
+            { "value": "mxfp4", "label": "mxfp4" },
+            { "value": "w8a8_fp8", "label": "w8a8_fp8" },
+            { "value": "w8a8_int8", "label": "w8a8_int8" }
           ],
           "advanced": true
         }
@@ -472,17 +520,6 @@
           "name": "Enable P2P Check",
           "type": "boolean",
           "description": "Enable P2P check for GPU access",
-          "default": false,
-          "required": false,
-          "advanced": true
-        }
-      },
-      {
-        "key": "ENABLE_FLASHINFER_MLA",
-        "input": {
-          "name": "Enable FlashInfer MLA",
-          "type": "boolean",
-          "description": "Enable FlashInfer Multi-head Latent Attention",
           "default": false,
           "required": false,
           "advanced": true

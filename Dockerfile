@@ -1,4 +1,4 @@
-FROM lmsysorg/sglang:v0.5.2-cu126
+FROM lmsysorg/sglang:v0.5.17-cu129
 
 # Keep handler and sglang output unbuffered so container logs appear live;
 # without this a slow or failing startup produces no logs at all.
@@ -15,7 +15,7 @@ WORKDIR /sgl-workspace
 # install dependencies
 COPY requirements.txt ./
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system -r requirements.txt
+    uv pip install --system --break-system-packages -r requirements.txt
 
 # copy source files
 COPY handler.py engine.py utils.py download_model.py test_input.json ./

@@ -75,7 +75,6 @@ class SGlangEngine:
             "DISABLE_OUTLINES_DISK_CACHE",
             "ENABLE_TORCH_COMPILE",
             "ENABLE_P2P_CHECK",
-            "ENABLE_FLASHINFER_MLA",
             "TRITON_ATTENTION_REDUCE_IN_FP32",
         ]
 
