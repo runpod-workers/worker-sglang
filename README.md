@@ -8,6 +8,47 @@ Run LLMs and VLMs using [SGLang](https://docs.sglang.ai)
 
 ---
 
+## Deploy
+
+### From the Runpod Hub
+
+Open the [Hub listing](https://www.runpod.io/console/hub/runpod-workers/worker-sglang),
+click **Deploy**, and fill in:
+
+| Field                               | Required                         | Notes                                                                                                                         |
+| ----------------------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **Model** (`MODEL_NAME`)            | Yes                              | Hugging Face repo ID, e.g. `HuggingFaceTB/SmolLM2-1.7B-Instruct`. There is no default — the worker will not start without it. |
+| **Hugging Face Token** (`HF_TOKEN`) | Only for gated or private models | Needed for anything behind a licence click-through, such as `meta-llama/*`.                                                   |
+
+Everything else is optional and listed under [Endpoint Configuration](#endpoint-configuration).
+
+Two things to check before deploying a larger model:
+
+- **Container disk** defaults to 100 GB and must hold the image plus the model weights.
+  Raise it for models above roughly 60 GB of weights.
+- **GPU selection** must have enough VRAM for the model. The default pool set starts at
+  24 GB; narrow it to the larger pools for bigger models.
+
+### Deploy the image yourself
+
+```
+runpod/worker-sglang:<tag>
+```
+
+Set `MODEL_NAME` (and `HF_TOKEN` if the model is gated), and **constrain the endpoint to
+CUDA 12.9 or newer** — see [Hardware requirements](#hardware-requirements). Without that
+constraint the endpoint can be placed on a host the image cannot start on, and jobs will
+queue forever against a silently restarting worker.
+
+### Run it locally
+
+```bash
+echo "HF_TOKEN=your_huggingface_token_here" > .env
+docker compose up
+```
+
+See [`.github/CONTRIBUTING.md`](.github/CONTRIBUTING.md) for the full local workflow.
+
 ## Hardware requirements
 
 This worker is built on `lmsysorg/sglang:v0.5.17-cu129`.
@@ -194,18 +235,42 @@ For external clients and SDKs, use the `/openai/v1` path prefix with your RunPod
 
 #### Response Format
 
-Both APIs return the same response format:
+Both APIs return the same OpenAI-shaped completion. The queue API (`/run`, `/runsync`)
+wraps it in the standard job envelope, under `output`:
 
 ```json
 {
-  "choices": [
+  "id": "...",
+  "status": "COMPLETED",
+  "output": [
     {
-      "index": 0,
-      "message": { "role": "assistant", "content": "Paris." },
-      "finish_reason": "stop"
+      "choices": [
+        {
+          "index": 0,
+          "message": { "role": "assistant", "content": "Paris." },
+          "finish_reason": "stop"
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 1,
+        "total_tokens": 10
+      }
     }
-  ],
-  "usage": { "prompt_tokens": 9, "completion_tokens": 1, "total_tokens": 10 }
+  ]
+}
+```
+
+The OpenAI-compatible path (`/openai/v1/...`) returns the completion directly, so the
+official `openai` SDK can consume it unchanged.
+
+If the request fails upstream, the job is marked `FAILED` and carries the SGLang status
+code and body:
+
+```json
+{
+  "status": "FAILED",
+  "error": "SGLang returned HTTP 400: temperature must be a non-negative finite number, got -99.0."
 }
 ```
 
