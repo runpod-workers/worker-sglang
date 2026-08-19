@@ -1,5 +1,9 @@
 FROM lmsysorg/sglang:v0.5.2-cu126
 
+# Keep handler and sglang output unbuffered so container logs appear live;
+# without this a slow or failing startup produces no logs at all.
+ENV PYTHONUNBUFFERED=1
+
 # Install uv package manager
 RUN curl -Ls https://astral.sh/uv/install.sh | sh \
     && ln -sf /root/.local/bin/uv /usr/local/bin/uv

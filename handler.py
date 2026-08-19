@@ -31,14 +31,18 @@ async def async_handler(job):
 
     # Case 1: full OpenAI style payload where caller already specifies the route.
     if job_input.get("openai_route"):
-        openai_route, openai_input = job_input.get("openai_route"), job_input.get(
-            "openai_input"
-        )
+        openai_route = job_input["openai_route"]
+        openai_input = job_input.get("openai_input") or {}
 
         openai_url = f"{engine.base_url}" + openai_route
         headers = {"Content-Type": "application/json"}
 
-        response = requests.post(openai_url, headers=headers, json=openai_input)
+        # Read-only routes such as /v1/models carry no body and are GET-only.
+        if openai_input:
+            response = requests.post(openai_url, headers=headers, json=openai_input)
+        else:
+            response = requests.get(openai_url, headers=headers)
+
         # Process the streamed response
         if openai_input.get("stream", False):
             for formated_chunk in process_response(response):

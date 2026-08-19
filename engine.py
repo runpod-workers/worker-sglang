@@ -91,15 +91,24 @@ class SGlangEngine:
                 command.append(f"--{flag.lower().replace('_', '-')}")
 
         self.process = subprocess.Popen(command, stdout=None, stderr=None)
-        print(f"Server started with PID: {self.process.pid}")
+        print(f"Server started with PID: {self.process.pid}", flush=True)
 
     def wait_for_server(self, timeout=900, interval=5):
         start_time = time.time()
         while time.time() - start_time < timeout:
+            # If launch_server died there is nothing left to wait for. Without
+            # this check the worker keeps polling for the full timeout while the
+            # platform reports it as ready, so it accepts jobs it can never run.
+            if self.process is not None and self.process.poll() is not None:
+                raise RuntimeError(
+                    "sglang.launch_server exited with code "
+                    f"{self.process.returncode} before becoming ready. "
+                    "Check the container logs above for the underlying error."
+                )
             try:
                 response = requests.get(f"{self.base_url}/v1/models")
                 if response.status_code == 200:
-                    print("Server is ready!")
+                    print("Server is ready!", flush=True)
                     return True
             except requests.RequestException:
                 pass
@@ -110,7 +119,7 @@ class SGlangEngine:
         if self.process:
             self.process.terminate()
             self.process.wait()
-            print("Server shut down.")
+            print("Server shut down.", flush=True)
 
 
 class OpenAIRequest:
