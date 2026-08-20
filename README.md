@@ -189,6 +189,25 @@ For direct SGLang text generation without OpenAI chat format:
 }
 ```
 
+#### Choosing the HTTP verb
+
+With `openai_route`, the verb is inferred from the payload: a request carrying
+`openai_input` is sent as a POST, one without it as a GET. That way read-only routes
+such as `/v1/models` and `/health`, which SGLang registers as GET-only, work without
+spelling anything out.
+
+Pass `method` to override it:
+
+```json
+{
+  "input": {
+    "openai_route": "/v1/some-route",
+    "method": "POST",
+    "openai_input": {}
+  }
+}
+```
+
 ---
 
 ### OpenAI-Compatible API

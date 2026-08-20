@@ -32,8 +32,11 @@ def _resolve_request(job_input):
     # Case 1: full OpenAI style payload where the caller specifies the route.
     if job_input.get("openai_route"):
         body = job_input.get("openai_input")
-        # Read-only routes such as /v1/models carry no body and are GET-only.
-        return job_input["openai_route"], ("POST" if body else "GET"), body
+        # The verb defaults to the payload: bodies POST, body-less requests GET,
+        # so read-only routes like /v1/models work without spelling it out.
+        # Pass "method" to override, e.g. to POST a deliberately empty body.
+        method = (job_input.get("method") or ("POST" if body else "GET")).upper()
+        return job_input["openai_route"], method, body
 
     # Case 2: looks like OpenAI chat/completions but omits the wrapper.
     if "messages" in job_input:
