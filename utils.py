@@ -10,11 +10,9 @@ def format_chunk(chunk):
         return f"data: {chunk}\n\n"
     
     try:
-        # Try to parse as JSON
+        # Re-serialize compactly so the chunk stays a single SSE data line
         data = json.loads(chunk)
-        formatted_json = json.dumps(data, indent=4)
-        formatted_lines = [f"data: {line}" for line in formatted_json.split('\n')]
-        return '\n'.join(formatted_lines) + '\n\n'
+        return f"data: {json.dumps(data, separators=(',', ':'))}\n\n"
     except json.JSONDecodeError:
         # If it's not valid JSON, return as plain text
         return f"data: {chunk}\n\n"
